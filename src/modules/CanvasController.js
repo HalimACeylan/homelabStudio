@@ -157,7 +157,7 @@ export class CanvasController {
 
       // SELECT MODE: Drag the node
       const isMultiSelect =
-        e.ctrlKey || e.metaKey || this.app.editMode === "marquee";
+        e.ctrlKey || e.metaKey || e.shiftKey || this.app.editMode === "marquee";
       if (isMultiSelect) {
         if (this.selectedNodeIds.has(nodeId)) {
           // If already selected and clicking with modifier, maybe deselect?

@@ -107,10 +107,9 @@ export class KeyboardController {
       this.app.ui.startConnecting(this.app.canvas.selectedNodeId);
     }
 
-    // Escape - cancel current action
+    // Escape - clear selection if any, otherwise switch to drag mode
     if (e.key === "Escape") {
       e.preventDefault();
-      this.app.canvas.clearSelection();
       this.app.ui.closeContextMenu();
       this.app.ui.closeModal();
 
@@ -128,13 +127,66 @@ export class KeyboardController {
           this.app.canvas.tempConnection.remove();
           this.app.canvas.tempConnection = null;
         }
+        return; // Don't do anything else after canceling connection
+      }
+
+      // Check if there's any selection
+      const hasSelection =
+        this.app.canvas.selectedNodeId ||
+        this.app.canvas.selectedConnectionId ||
+        (this.app.canvas.selectedNodeIds &&
+          this.app.canvas.selectedNodeIds.size > 0);
+
+      if (hasSelection) {
+        // Clear selection but keep current tool
+        this.app.canvas.clearSelection();
+      } else {
+        // No selection - switch to drag mode
+        const selectBtn = document.querySelector(
+          '.tool-btn[data-mode="select"]'
+        );
+        if (selectBtn && !selectBtn.classList.contains("active")) {
+          selectBtn.click();
+        }
       }
     }
 
-    // Space - center and fit nodes on screen
+    // Space - center view without changing zoom
     if (e.key === " " && !cmdKey) {
       e.preventDefault();
-      this.app.canvas.fitToContent();
+      this.centerView();
+    }
+
+    // Number keys 1-6 for tool selection
+    if (
+      !cmdKey &&
+      !e.shiftKey &&
+      ["1", "2", "3", "4", "5", "6"].includes(e.key)
+    ) {
+      e.preventDefault();
+
+      // Map: 1=Drag, 2=Select, 3=Ethernet, 4=Wireless, 5=Fiber, 6=USB
+      const toolMap = {
+        1: { mode: "select", type: null }, // Drag
+        2: { mode: "marquee", type: null }, // Select
+        3: { mode: "connect", type: "ethernet" }, // Ethernet
+        4: { mode: "connect", type: "wireless" }, // Wireless/WiFi
+        5: { mode: "connect", type: "fiber" }, // Fiber
+        6: { mode: "connect", type: "usb" }, // USB
+      };
+
+      const tool = toolMap[e.key];
+      if (tool) {
+        let selector = `.tool-btn[data-mode="${tool.mode}"]`;
+        if (tool.type) {
+          selector += `[data-type="${tool.type}"]`;
+        }
+
+        const toolBtn = document.querySelector(selector);
+        if (toolBtn) {
+          toolBtn.click();
+        }
+      }
     }
 
     // Arrow keys to nudge selected node
@@ -190,5 +242,45 @@ export class KeyboardController {
       );
       if (firstConnect) firstConnect.click();
     }
+  }
+
+  centerView() {
+    // Center view on all nodes without changing zoom
+    const nodes = Array.from(this.app.diagram.nodes.values());
+    if (nodes.length === 0) return;
+
+    // Calculate bounds of all nodes
+    let minX = Infinity,
+      minY = Infinity,
+      maxX = -Infinity,
+      maxY = -Infinity;
+
+    nodes.forEach((node) => {
+      const h =
+        node.expanded && node.category === "hardware" ? 350 : node.height;
+      minX = Math.min(minX, node.x);
+      minY = Math.min(minY, node.y);
+      maxX = Math.max(maxX, node.x + node.width);
+      maxY = Math.max(maxY, node.y + h);
+    });
+
+    if (minX === Infinity) return;
+
+    // Calculate center of all nodes
+    const centerX = (minX + maxX) / 2;
+    const centerY = (minY + maxY) / 2;
+
+    // Get viewport center
+    const viewportCenterX = this.app.canvas.wrapper.clientWidth / 2;
+    const viewportCenterY = this.app.canvas.wrapper.clientHeight / 2;
+
+    // Calculate offset needed to center nodes
+    const offsetX = viewportCenterX - centerX * this.app.canvas.zoom;
+    const offsetY = viewportCenterY - centerY * this.app.canvas.zoom;
+
+    // Update pan
+    this.app.canvas.panX = offsetX;
+    this.app.canvas.panY = offsetY;
+    this.app.canvas.updateTransform();
   }
 }
