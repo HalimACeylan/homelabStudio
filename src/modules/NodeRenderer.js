@@ -9,6 +9,31 @@ export class NodeRenderer {
 
   createIconSVGs() {
     return {
+      // Category fallback icons
+      hardware: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="2" y="3" width="20" height="6" rx="1"></rect>
+        <rect x="2" y="11" width="20" height="6" rx="1"></rect>
+        <circle cx="6" cy="6" r="1" fill="currentColor"></circle>
+        <circle cx="6" cy="14" r="1" fill="currentColor"></circle>
+      </svg>`,
+      network: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="2" y="10" width="20" height="8" rx="2"></rect>
+        <circle cx="6" cy="14" r="1.5" fill="currentColor"></circle>
+        <line x1="10" y1="14" x2="18" y2="14"></line>
+        <path d="M8 6 L12 2 L16 6"></path>
+      </svg>`,
+      os: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <circle cx="12" cy="12" r="10"></circle>
+        <circle cx="12" cy="6" r="2"></circle>
+        <circle cx="12" cy="18" r="2"></circle>
+        <circle cx="6" cy="12" r="2"></circle>
+      </svg>`,
+      service: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="3" y="3" width="18" height="18" rx="2"></rect>
+        <path d="M9 9h6v6H9z"></path>
+      </svg>`,
+
+      // Specific node icons
       server: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
         <rect x="2" y="3" width="20" height="6" rx="1"></rect>
         <rect x="2" y="11" width="20" height="6" rx="1"></rect>
@@ -216,7 +241,11 @@ export class NodeRenderer {
         
         <div class="node-header">
           <div class="node-icon" style="color: ${nodeType.color}">
-            ${this.icons[node.type] || this.icons.server}
+            ${
+              this.icons[node.type] ||
+              this.icons[nodeType.category] ||
+              this.icons.server
+            }
           </div>
           <div class="node-info">
             <span class="node-title">${

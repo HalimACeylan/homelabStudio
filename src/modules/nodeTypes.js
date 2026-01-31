@@ -271,6 +271,22 @@ export const NODE_TYPES = {
       ram: "4GB",
     },
   },
+  custom: {
+    category: "hardware",
+    defaultName: "Custom Hardware",
+    defaultWidth: 240,
+    defaultHeight: 160,
+    minHeight: 100,
+    expandedHeight: 280,
+    icon: "hardware",
+    color: "#6366f1",
+    canHaveApps: true,
+    properties: {
+      hostname: "",
+      ip: "",
+      description: "",
+    },
+  },
 
   // Network - simple nodes
   router: {
@@ -299,6 +315,45 @@ export const NODE_TYPES = {
       ip: "",
       model: "",
       ports: "24",
+    },
+  },
+  "custom-network": {
+    category: "network",
+    defaultName: "Custom Network",
+    defaultWidth: 160,
+    defaultHeight: 100,
+    icon: "network",
+    color: "#10b981",
+    canHaveApps: false,
+    properties: {
+      ip: "",
+      description: "",
+    },
+  },
+  "custom-os": {
+    category: "os",
+    defaultName: "Custom OS",
+    defaultWidth: 120,
+    defaultHeight: 80,
+    icon: "os",
+    color: "#f97316",
+    canHaveApps: false,
+    properties: {
+      version: "",
+      description: "",
+    },
+  },
+  "custom-service": {
+    category: "service",
+    defaultName: "Custom Service",
+    defaultWidth: 120,
+    defaultHeight: 80,
+    icon: "service",
+    color: "#14b8a6",
+    canHaveApps: false,
+    properties: {
+      port: "",
+      description: "",
     },
   },
 };

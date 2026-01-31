@@ -568,156 +568,192 @@ body {
   color: var(--accent-blue);
 }
 
-/* Component Icon Styles */
+/* Component Icon Styles - Clean Redesign */
+
+/* Hardware Icons */
 .server-icon,
-.workstation-icon,
-.laptop-icon,
 .nas-icon,
-.raspberry-pi-icon {
-  background: linear-gradient(
-    135deg,
-    rgba(88, 166, 255, 0.2),
-    rgba(88, 166, 255, 0.1)
-  );
-  border: 1px solid var(--server-color);
+.raspberry-pi-icon,
+.hardware-icon {
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .server-icon::before {
   content: "";
   width: 24px;
-  height: 18px;
-  background: var(--server-color);
-  border-radius: 2px;
-  position: relative;
-}
-
-.server-icon::after {
-  content: "";
-  position: absolute;
-  width: 4px;
-  height: 4px;
-  background: var(--accent-green);
-  border-radius: 50%;
-  bottom: 8px;
-  right: 8px;
-  box-shadow: 0 0 4px var(--accent-green);
-}
-
-.workstation-icon::before {
-  content: "";
-  width: 20px;
-  height: 16px;
-  background: var(--server-color);
-  border-radius: 2px;
-}
-
-.laptop-icon::before {
-  content: "";
-  width: 20px;
-  height: 12px;
-  background: var(--server-color);
-  border-radius: 2px 2px 0 0;
-  position: relative;
-  top: 2px;
-}
-
-.laptop-icon::after {
-  content: "";
-  position: absolute;
-  width: 24px;
-  height: 4px;
-  background: var(--server-color);
-  border-radius: 0 0 2px 2px;
-  bottom: 6px;
+  height: 20px;
+  background: #3b82f6;
+  border-radius: 3px;
+  box-shadow: 
+    inset 0 6px 0 0 rgba(0,0,0,0.1),
+    inset 0 12px 0 0 rgba(0,0,0,0.1);
 }
 
 .nas-icon::before {
   content: "";
-  width: 22px;
+  width: 24px;
   height: 20px;
-  background: repeating-linear-gradient(
-    0deg,
-    var(--server-color) 0px,
-    var(--server-color) 3px,
-    transparent 3px,
-    transparent 5px
-  );
+  background: 
+    linear-gradient(90deg, 
+      #06b6d4 0%, #06b6d4 22%, 
+      transparent 22%, transparent 28%,
+      #06b6d4 28%, #06b6d4 50%,
+      transparent 50%, transparent 56%,
+      #06b6d4 56%, #06b6d4 78%,
+      transparent 78%, transparent 84%,
+      #06b6d4 84%, #06b6d4 100%
+    );
   border-radius: 2px;
 }
 
 .raspberry-pi-icon::before {
   content: "";
-  width: 18px;
-  height: 12px;
-  background: var(--accent-green);
-  border-radius: 2px;
+  width: 22px;
+  height: 18px;
+  background: #c2185b;
+  border-radius: 3px;
+  position: relative;
+}
+
+.raspberry-pi-icon::after {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #fff;
+  border-radius: 50%;
+  left: 7px;
+  top: 5px;
+  opacity: 0.3;
+}
+
+.hardware-icon::before {
+  content: "";
+  width: 24px;
+  height: 20px;
+  background: #6366f1;
+  border-radius: 3px;
+  box-shadow: inset 0 8px 0 0 rgba(0,0,0,0.15);
 }
 
 /* Network Icons */
 .router-icon,
 .switch-icon,
-.firewall-icon,
-.access-point-icon,
-.modem-icon {
-  background: linear-gradient(
-    135deg,
-    rgba(63, 185, 80, 0.2),
-    rgba(63, 185, 80, 0.1)
-  );
-  border: 1px solid var(--network-color);
+.network-icon {
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .router-icon::before {
   content: "";
-  width: 22px;
-  height: 10px;
-  background: var(--network-color);
+  width: 24px;
+  height: 14px;
+  background: #22c55e;
   border-radius: 2px;
+  position: relative;
 }
 
 .router-icon::after {
   content: "";
   position: absolute;
-  width: 3px;
-  height: 3px;
-  background: var(--bg-primary);
-  border-radius: 50%;
-  left: 9px;
+  width: 8px;
+  height: 8px;
+  border: 2px solid #22c55e;
+  border-bottom: none;
+  border-radius: 8px 8px 0 0;
+  top: -8px;
+  left: 8px;
 }
 
 .switch-icon::before {
   content: "";
   width: 24px;
-  height: 8px;
-  background: var(--network-color);
-  border-radius: 1px;
+  height: 16px;
+  background: #16a34a;
+  border-radius: 2px;
+  box-shadow: 
+    inset 0 0 0 2px rgba(255,255,255,0.1),
+    inset 4px 0 0 0 rgba(0,0,0,0.2),
+    inset 8px 0 0 0 rgba(0,0,0,0.2),
+    inset 12px 0 0 0 rgba(0,0,0,0.2),
+    inset 16px 0 0 0 rgba(0,0,0,0.2);
 }
 
-.firewall-icon::before {
+.network-icon::before {
   content: "";
-  width: 16px;
-  height: 20px;
-  background: linear-gradient(135deg, var(--accent-orange), var(--accent-red));
-  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  width: 24px;
+  height: 14px;
+  background: #10b981;
+  border-radius: 2px;
 }
 
-.access-point-icon::before {
+.network-icon::after {
+  content: "";
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border: 2px solid #10b981;
+  border-bottom: none;
+  border-radius: 6px 6px 0 0;
+  top: -6px;
+  left: 9px;
+}
+
+/* OS Icons */
+.os-icon {
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.os-icon::before {
   content: "";
   width: 20px;
   height: 20px;
-  border: 2px solid var(--network-color);
+  background: #f97316;
   border-radius: 50%;
   position: relative;
 }
 
-.access-point-icon::after {
+.os-icon::after {
   content: "";
   position: absolute;
   width: 8px;
   height: 8px;
-  background: var(--network-color);
+  background: rgba(255,255,255,0.3);
   border-radius: 50%;
+  left: 6px;
+  top: 6px;
 }
+
+/* Service Icons */
+.service-icon {
+  background: transparent;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.service-icon::before {
+  content: "";
+  width: 18px;
+  height: 18px;
+  background: #14b8a6;
+  border-radius: 3px;
+}
+
+
+
 
 .modem-icon::before {
   content: "";
@@ -766,6 +802,296 @@ body {
   background: var(--accent-cyan);
   border-radius: 1px;
 }
+
+/* ===================================
+   V-OS / Hypervisor Palette Icons
+   =================================== */
+.proxmox-icon,
+.esxi-icon,
+.xcp_ng-icon,
+.truenas-icon,
+.harvester-icon,
+.ovirt-icon,
+.citrix-icon,
+.oracle-icon,
+.opennebula-icon,
+.smartos-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.proxmox-icon::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  background: #e57000;
+  border-radius: 3px;
+}
+
+.esxi-icon::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  background: #607078;
+  border-radius: 3px;
+  box-shadow: inset 0 0 0 2px rgba(255,255,255,0.2);
+}
+
+.xcp_ng-icon::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  background: #00b388;
+  border-radius: 3px;
+}
+
+.truenas-icon::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  background: #0095d5;
+  border-radius: 3px;
+  box-shadow: 
+    inset 0 6px 0 0 rgba(0,0,0,0.15),
+    inset 0 12px 0 0 rgba(0,0,0,0.15);
+}
+
+.harvester-icon::before {
+  content: "";
+  width: 18px;
+  height: 18px;
+  background: transparent;
+  border: 3px solid #6b48ff;
+  border-radius: 2px;
+}
+
+.ovirt-icon::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  background: #00b9e4;
+  border-radius: 50%;
+}
+
+.citrix-icon::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  background: #fc0;
+  border-radius: 3px;
+}
+
+.oracle-icon::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  background: #f80000;
+  border-radius: 3px;
+}
+
+.opennebula-icon::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  background: #0097d7;
+  border-radius: 50%;
+}
+
+.smartos-icon::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  background: #ff6600;
+  border-radius: 3px;
+}
+
+/* ===================================
+   Operating System Palette Icons
+   =================================== */
+.ubuntu-icon,
+.debian-icon,
+.windows-icon,
+.macos-icon,
+.centos-icon,
+.casaos-icon,
+.umbrel-icon,
+.yunohost-icon,
+.unraid-icon,
+.startos-icon,
+.omv-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.ubuntu-icon::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  background: #e95420;
+  border-radius: 50%;
+}
+
+.ubuntu-icon::after {
+  content: "";
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: #fff;
+  border-radius: 50%;
+  opacity: 0.3;
+}
+
+.debian-icon::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  background: #d70a53;
+  border-radius: 50%;
+}
+
+.windows-icon::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  background: #00a4ef;
+  border-radius: 2px;
+  box-shadow: 
+    inset 1px 0 0 0 rgba(0,0,0,0.2),
+    inset 0 1px 0 0 rgba(0,0,0,0.2);
+}
+
+.macos-icon::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  background: #a2aaad;
+  border-radius: 50%;
+}
+
+.centos-icon::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  background: #932279;
+  border-radius: 3px;
+}
+
+.casaos-icon::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  background: #4a90e2;
+  border-radius: 3px;
+}
+
+.umbrel-icon::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  background: #5551ff;
+  border-radius: 50%;
+}
+
+.yunohost-icon::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  background: #41b0e3;
+  border-radius: 3px;
+}
+
+.unraid-icon::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  background: #f15a2c;
+  border-radius: 3px;
+}
+
+.startos-icon::before {
+  content: "";
+  width: 18px;
+  height: 18px;
+  background: transparent;
+  border: 3px solid #6c5ce7;
+  border-radius: 50%;
+}
+
+.omv-icon::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  background: #5dacdf;
+  border-radius: 3px;
+}
+
+/* ===================================
+   Application/Service Palette Icons
+   =================================== */
+.pihole-icon,
+.docker-icon,
+.plex-icon,
+.homeassistant-icon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.pihole-icon::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  background: #96060c;
+  border-radius: 50%;
+}
+
+.docker-icon::before {
+  content: "";
+  width: 22px;
+  height: 16px;
+  background: 
+    linear-gradient(90deg, 
+      #2496ed 0%, #2496ed 18%, 
+      transparent 18%, transparent 23%,
+      #2496ed 23%, #2496ed 41%,
+      transparent 41%, transparent 46%,
+      #2496ed 46%, #2496ed 64%,
+      transparent 64%, transparent 69%,
+      #2496ed 69%, #2496ed 87%,
+      transparent 87%, transparent 92%,
+      #2496ed 92%, #2496ed 100%
+    );
+  border-radius: 2px;
+}
+
+.plex-icon::before {
+  content: "";
+  width: 0;
+  height: 0;
+  border-left: 12px solid #e5a00d;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+}
+
+.homeassistant-icon::before {
+  content: "";
+  width: 20px;
+  height: 20px;
+  background: #41bdf5;
+  border-radius: 3px;
+}
+
 
 .hypervisor-icon::before {
   content: "";
@@ -962,89 +1288,6 @@ body {
     var(--accent-green) 70%,
     transparent 100%
   );
-}
-
-/* Application Icons (Shared) */
-.pihole-icon,
-.proxmox-icon,
-.docker-icon,
-.plex-icon,
-.homeassistant-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: var(--radius-sm);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-  background: linear-gradient(
-    135deg,
-    rgba(163, 113, 247, 0.2),
-    rgba(163, 113, 247, 0.1)
-  );
-  border: 1px solid var(--accent-purple);
-}
-
-.homeassistant-icon {
-  background: linear-gradient(135deg, rgba(65, 189, 245, 0.2), rgba(65, 189, 245, 0.1));
-  border: 1px solid #41bdf5;
-}
-
-.pihole-icon::before {
-  content: "π";
-  font-family: var(--font-mono);
-  font-size: 16px;
-  font-weight: 700;
-  color: #ef4444;
-}
-
-.proxmox-icon::before {
-  content: "";
-  width: 18px;
-  height: 18px;
-  background: #e97132;
-  border-radius: 2px;
-}
-
-.proxmox-icon::after {
-  content: "";
-  position: absolute;
-  width: 6px;
-  height: 6px;
-  background: var(--bg-primary);
-  border-radius: 1px;
-}
-
-.docker-icon::before {
-  content: "";
-  width: 20px;
-  height: 14px;
-  background: repeating-linear-gradient(
-    90deg,
-    #2496ed 0px,
-    #2496ed 4px,
-    transparent 4px,
-    transparent 5px
-  );
-  border-radius: 2px;
-}
-
-.plex-icon::before {
-  content: "";
-  width: 0;
-  height: 0;
-  border-left: 10px solid #e5a00d;
-  border-top: 8px solid transparent;
-  border-bottom: 8px solid transparent;
-}
-
-
-.homeassistant-icon::before {
-  content: "H";
-  font-family: var(--font-sans);
-  font-size: 16px;
-  font-weight: 700;
-  color: #41bdf5;
 }
 
 /* ===================================
