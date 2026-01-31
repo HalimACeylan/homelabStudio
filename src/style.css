@@ -1367,8 +1367,6 @@ body {
   inset: 0;
   width: 10000px;
   height: 10000px;
-  left: -5000px;
-  top: -5000px;
   pointer-events: none;
   z-index: 1;
 }
@@ -1378,8 +1376,6 @@ body {
   inset: 0;
   width: 10000px;
   height: 10000px;
-  left: -5000px;
-  top: -5000px;
   pointer-events: none;
   z-index: 1; /* Same/lower than nodes (2) */
 }
@@ -1389,8 +1385,6 @@ body {
   inset: 0;
   width: 10000px;
   height: 10000px;
-  left: -5000px;
-  top: -5000px;
   z-index: 2;
   pointer-events: none;
 }

@@ -247,7 +247,13 @@ export class KeyboardController {
   centerView() {
     // Center view on all nodes without changing zoom
     const nodes = Array.from(this.app.diagram.nodes.values());
-    if (nodes.length === 0) return;
+    if (nodes.length === 0) {
+      this.app.canvas.panX = 0;
+      this.app.canvas.panY = 0;
+      this.app.canvas.scale = 1;
+      this.app.canvas.applyTransform();
+      return;
+    }
 
     // Calculate bounds of all nodes
     let minX = Infinity,
@@ -256,31 +262,32 @@ export class KeyboardController {
       maxY = -Infinity;
 
     nodes.forEach((node) => {
+      const w = node.width || 140;
       const h =
-        node.expanded && node.category === "hardware" ? 350 : node.height;
+        node.expanded && node.category === "hardware" ? 280 : node.height || 90;
+
       minX = Math.min(minX, node.x);
       minY = Math.min(minY, node.y);
-      maxX = Math.max(maxX, node.x + node.width);
+      maxX = Math.max(maxX, node.x + w);
       maxY = Math.max(maxY, node.y + h);
     });
 
-    if (minX === Infinity) return;
-
-    // Calculate center of all nodes
+    // Center of the nodes in world coordinates
     const centerX = (minX + maxX) / 2;
     const centerY = (minY + maxY) / 2;
 
-    // Get viewport center
-    const viewportCenterX = this.app.canvas.wrapper.clientWidth / 2;
-    const viewportCenterY = this.app.canvas.wrapper.clientHeight / 2;
+    // Viewport center
+    const viewportWidth = this.app.canvas.container.offsetWidth;
+    const viewportHeight = this.app.canvas.container.offsetHeight;
+    const scale = this.app.canvas.scale;
 
-    // Calculate offset needed to center nodes
-    const offsetX = viewportCenterX - centerX * this.app.canvas.zoom;
-    const offsetY = viewportCenterY - centerY * this.app.canvas.zoom;
+    // Formula: screenPos = worldPos * scale + pan
+    // We want: viewportCenter = worldCenter * scale + pan
+    // Pan = viewportCenter - (worldCenter * scale)
+    this.app.canvas.panX = viewportWidth / 2 - centerX * scale;
+    this.app.canvas.panY = viewportHeight / 2 - centerY * scale;
 
-    // Update pan
-    this.app.canvas.panX = offsetX;
-    this.app.canvas.panY = offsetY;
-    this.app.canvas.updateTransform();
+    this.app.canvas.applyTransform();
+    this.app.canvas.updateZoomDisplay();
   }
 }

@@ -682,15 +682,15 @@ export class CanvasController {
   // Coordinate conversion - accounts for 5000px offset in nodes layer
   screenToCanvas(screenX, screenY) {
     const rect = this.container.getBoundingClientRect();
-    const x = (screenX - rect.left - this.panX) / this.scale + 5000;
-    const y = (screenY - rect.top - this.panY) / this.scale + 5000;
+    const x = (screenX - rect.left - this.panX) / this.scale;
+    const y = (screenY - rect.top - this.panY) / this.scale;
     return { x, y };
   }
 
   canvasToScreen(canvasX, canvasY) {
     const rect = this.container.getBoundingClientRect();
-    const x = (canvasX - 5000) * this.scale + this.panX + rect.left;
-    const y = (canvasY - 5000) * this.scale + this.panY + rect.top;
+    const x = canvasX * this.scale + this.panX + rect.left;
+    const y = canvasY * this.scale + this.panY + rect.top;
     return { x, y };
   }
 
@@ -772,8 +772,8 @@ export class CanvasController {
 
     this.app.diagram.nodes.forEach((node) => {
       // Account for coordinate offset if your nodes layer is at -5000
-      const x = node.x - 5000;
-      const y = node.y - 5000;
+      const x = node.x;
+      const y = node.y;
       minX = Math.min(minX, x);
       minY = Math.min(minY, y);
       maxX = Math.max(maxX, x + node.width);
