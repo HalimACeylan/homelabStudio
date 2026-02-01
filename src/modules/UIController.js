@@ -263,65 +263,9 @@ export class UIController {
           nodesToRemove = Array.from(this.app.canvas.selectedNodeIds);
         }
 
-        let removedCount = 0;
-        const groupsToUpdate = new Set();
-
-        // Find and remove nodes from their groups
-        this.app.diagram.groups.forEach((group, groupId) => {
-          nodesToRemove.forEach((nodeId) => {
-            if (group.nodeIds.includes(nodeId)) {
-              group.nodeIds = group.nodeIds.filter((id) => id !== nodeId);
-              groupsToUpdate.add(groupId);
-              removedCount++;
-
-              // Reset node title color
-              const nodeEl = document.querySelector(
-                `[data-node-id="${nodeId}"]`
-              );
-              if (nodeEl) {
-                const titleEl = nodeEl.querySelector(".node-title");
-                if (titleEl) {
-                  titleEl.style.color = "";
-                }
-              }
-            }
-          });
-
-          // If group is now empty, delete it
-          if (group.nodeIds.length === 0) {
-            this.app.diagram.removeGroup(groupId);
-            const el = document.querySelector(`[data-group-id="${groupId}"]`);
-            if (el) el.remove();
-          }
-        });
-
-        // Update remaining groups
-        groupsToUpdate.forEach((groupId) => {
-          const group = this.app.diagram.groups.get(groupId);
-          if (group && group.nodeIds.length > 0) {
-            // Clean up any invalid node IDs
-            group.nodeIds = group.nodeIds.filter((nodeId) =>
-              this.app.diagram.nodes.has(nodeId)
-            );
-            this.app.canvas.renderGroup(group);
-          }
-        });
+        const removedCount = this.app.removeNodesFromGroup(nodesToRemove);
 
         if (removedCount > 0) {
-          this.app.diagram.updateModified();
-
-          // Refresh properties panel if showing a group
-          const currentGroupId = this.app.canvas.selectedGroupId;
-          if (currentGroupId && groupsToUpdate.has(currentGroupId)) {
-            const group = this.app.diagram.groups.get(currentGroupId);
-            if (group) {
-              this.app.properties.showGroupProperties(group);
-            } else {
-              // Group was deleted, clear properties
-              this.app.properties.clear();
-            }
-          }
-
           this.showToast(
             `Removed ${removedCount} node(s) from group(s)`,
             "success"
@@ -677,22 +621,17 @@ export class UIController {
             nodesToAdd = Array.from(this.app.canvas.selectedNodeIds);
           }
 
-          // Add nodes to group (avoid duplicates)
-          nodesToAdd.forEach((nodeId) => {
-            if (!group.nodeIds.includes(nodeId)) {
-              group.nodeIds.push(nodeId);
-            }
-          });
-
-          // Update group
-          this.app.diagram.updateModified();
-          this.app.canvas.renderGroup(group);
+          // Add nodes to group using the method with history tracking
+          const addedCount = this.app.addNodesToGroup(groupId, nodesToAdd);
 
           this.closeContextMenu();
-          this.showToast(
-            `Added ${nodesToAdd.length} node(s) to ${group.name}`,
-            "success"
-          );
+
+          if (addedCount > 0) {
+            this.showToast(
+              `Added ${addedCount} node(s) to ${group.name}`,
+              "success"
+            );
+          }
         }
       });
     });

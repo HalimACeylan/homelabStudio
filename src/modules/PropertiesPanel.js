@@ -454,34 +454,20 @@ export class PropertiesPanel {
       btn.addEventListener("click", (e) => {
         e.stopPropagation();
         const nodeId = btn.dataset.nodeId;
-        const group = this.app.diagram.groups.get(groupId);
 
-        if (group) {
-          // Remove node from group
-          group.nodeIds = group.nodeIds.filter((id) => id !== nodeId);
+        // Use the method with history tracking
+        const removedCount = this.app.removeNodesFromGroup([nodeId]);
 
-          // Reset node title color
-          const nodeEl = document.querySelector(`[data-node-id="${nodeId}"]`);
-          if (nodeEl) {
-            const titleEl = nodeEl.querySelector(".node-title");
-            if (titleEl) {
-              titleEl.style.color = "";
-            }
-          }
-
-          // If group is now empty, delete it
-          if (group.nodeIds.length === 0) {
-            this.app.diagram.removeGroup(groupId);
-            const el = document.querySelector(`[data-group-id="${groupId}"]`);
-            if (el) el.remove();
-            this.clear();
-            this.app.ui.showToast("Group deleted (no members left)", "success");
-          } else {
-            // Update group
-            this.app.diagram.updateModified();
-            this.app.canvas.renderGroup(group);
+        if (removedCount > 0) {
+          // Check if group still exists
+          const group = this.app.diagram.groups.get(groupId);
+          if (group) {
             // Refresh properties panel
             this.showGroupProperties(group);
+          } else {
+            // Group was deleted
+            this.clear();
+            this.app.ui.showToast("Group deleted (no members left)", "success");
           }
         }
       });
@@ -506,7 +492,7 @@ export class PropertiesPanel {
           });
         }
 
-        this.app.diagram.removeGroup(groupId);
+        this.app.removeGroup(groupId);
         // Remove from DOM
         const el = document.querySelector(`[data-group-id="${groupId}"]`);
         if (el) el.remove();

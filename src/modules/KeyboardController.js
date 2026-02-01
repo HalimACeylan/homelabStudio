@@ -46,17 +46,8 @@ export class KeyboardController {
       } else if (this.app.canvas.selectedGroupId) {
         e.preventDefault();
         const groupId = this.app.canvas.selectedGroupId;
-        const group = this.app.diagram.groups.get(groupId);
-        if (group) {
-          this.app.diagram.removeGroup(groupId);
-          const groupEl = document.querySelector(
-            `[data-group-id="${groupId}"]`
-          );
-          if (groupEl) groupEl.remove();
-          this.app.canvas.selectedGroupId = null;
-          this.app.properties.clear();
-          this.app.ui.showToast("Group deleted", "success");
-        }
+        this.app.removeGroup(groupId);
+        this.app.ui.showToast("Group deleted", "success");
       } else if (this.app.canvas.selectedNodeId) {
         e.preventDefault();
         const id = this.app.canvas.selectedNodeId;
@@ -148,53 +139,10 @@ export class KeyboardController {
       if (selectedIds && selectedIds.size > 0) {
         e.preventDefault();
 
-        let removedCount = 0;
-        const groupsToUpdate = new Set();
         const nodesToRemove = Array.from(selectedIds);
-
-        // Find and remove nodes from their groups
-        this.app.diagram.groups.forEach((group, groupId) => {
-          nodesToRemove.forEach((nodeId) => {
-            if (group.nodeIds.includes(nodeId)) {
-              group.nodeIds = group.nodeIds.filter((id) => id !== nodeId);
-              groupsToUpdate.add(groupId);
-              removedCount++;
-
-              // Reset node title color
-              const nodeEl = document.querySelector(
-                `[data-node-id="${nodeId}"]`
-              );
-              if (nodeEl) {
-                const titleEl = nodeEl.querySelector(".node-title");
-                if (titleEl) {
-                  titleEl.style.color = "";
-                }
-              }
-            }
-          });
-
-          // If group is now empty, delete it
-          if (group.nodeIds.length === 0) {
-            this.app.diagram.removeGroup(groupId);
-            const el = document.querySelector(`[data-group-id="${groupId}"]`);
-            if (el) el.remove();
-          }
-        });
-
-        // Update remaining groups
-        groupsToUpdate.forEach((groupId) => {
-          const group = this.app.diagram.groups.get(groupId);
-          if (group && group.nodeIds.length > 0) {
-            // Clean up any invalid node IDs
-            group.nodeIds = group.nodeIds.filter((nodeId) =>
-              this.app.diagram.nodes.has(nodeId)
-            );
-            this.app.canvas.renderGroup(group);
-          }
-        });
+        const removedCount = this.app.removeNodesFromGroup(nodesToRemove);
 
         if (removedCount > 0) {
-          this.app.diagram.updateModified();
           this.app.ui.showToast(
             `Removed ${removedCount} node(s) from group(s)`,
             "success"

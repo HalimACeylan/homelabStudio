@@ -281,6 +281,146 @@ class HomelabStudio {
     });
   }
 
+  removeGroup(groupId) {
+    const group = this.diagram.groups.get(groupId);
+    if (!group) return;
+
+    // Reset node title colors for all members
+    group.nodeIds.forEach((nodeId) => {
+      const nodeEl = document.querySelector(`[data-node-id="${nodeId}"]`);
+      if (nodeEl) {
+        const titleEl = nodeEl.querySelector(".node-title");
+        if (titleEl) {
+          titleEl.style.color = "";
+        }
+      }
+    });
+
+    // Remove from diagram
+    this.diagram.removeGroup(groupId);
+
+    // Remove from DOM
+    const groupEl = document.querySelector(`[data-group-id="${groupId}"]`);
+    if (groupEl) groupEl.remove();
+
+    // Track in history
+    this.history.push({
+      type: "remove-group",
+      id: groupId,
+      data: { ...group },
+    });
+
+    // Clear selection if this group was selected
+    if (this.canvas.selectedGroupId === groupId) {
+      this.canvas.selectedGroupId = null;
+      this.properties.clear();
+    }
+  }
+
+  addNodesToGroup(groupId, nodeIds) {
+    const group = this.diagram.groups.get(groupId);
+    if (!group || !nodeIds || nodeIds.length === 0) return;
+
+    // Track which nodes were actually added (not already in group)
+    const addedNodes = nodeIds.filter(
+      (nodeId) => !group.nodeIds.includes(nodeId)
+    );
+    if (addedNodes.length === 0) return;
+
+    // Add nodes to group
+    group.nodeIds.push(...addedNodes);
+
+    // Update group rendering
+    this.canvas.renderGroup(group);
+
+    // Track in history
+    this.history.push({
+      type: "add-to-group",
+      groupId: groupId,
+      nodeIds: addedNodes,
+    });
+
+    this.diagram.updateModified();
+    return addedNodes.length;
+  }
+
+  removeNodesFromGroup(nodeIds) {
+    if (!nodeIds || nodeIds.length === 0) return 0;
+
+    const changes = []; // Track changes for history
+    const groupsToUpdate = new Set();
+    const groupsToDelete = [];
+
+    // Find and remove nodes from their groups
+    this.diagram.groups.forEach((group, groupId) => {
+      const removedFromThisGroup = [];
+
+      nodeIds.forEach((nodeId) => {
+        if (group.nodeIds.includes(nodeId)) {
+          group.nodeIds = group.nodeIds.filter((id) => id !== nodeId);
+          removedFromThisGroup.push(nodeId);
+
+          // Reset node title color
+          const nodeEl = document.querySelector(`[data-node-id="${nodeId}"]`);
+          if (nodeEl) {
+            const titleEl = nodeEl.querySelector(".node-title");
+            if (titleEl) {
+              titleEl.style.color = "";
+            }
+          }
+        }
+      });
+
+      if (removedFromThisGroup.length > 0) {
+        changes.push({ groupId, nodeIds: removedFromThisGroup });
+
+        if (group.nodeIds.length === 0) {
+          groupsToDelete.push(groupId);
+        } else {
+          groupsToUpdate.add(groupId);
+        }
+      }
+    });
+
+    // Delete empty groups
+    groupsToDelete.forEach((groupId) => {
+      this.removeGroup(groupId);
+    });
+
+    // Update remaining groups
+    groupsToUpdate.forEach((groupId) => {
+      const group = this.diagram.groups.get(groupId);
+      if (group) {
+        // Clean up any invalid node IDs
+        group.nodeIds = group.nodeIds.filter((nodeId) =>
+          this.diagram.nodes.has(nodeId)
+        );
+        this.canvas.renderGroup(group);
+      }
+    });
+
+    // Track in history (batch all changes)
+    if (changes.length > 0) {
+      this.history.push({
+        type: "remove-from-group",
+        changes: changes, // Array of {groupId, nodeIds}
+      });
+
+      this.diagram.updateModified();
+
+      // Refresh properties panel if showing a group
+      const currentGroupId = this.canvas.selectedGroupId;
+      if (currentGroupId && groupsToUpdate.has(currentGroupId)) {
+        const group = this.diagram.groups.get(currentGroupId);
+        if (group) {
+          this.properties.showGroupProperties(group);
+        }
+      }
+    }
+
+    return changes.length;
+  }
+
   // Select node
   selectNode(nodeId, addToSelection = false) {
     if (!addToSelection) {
@@ -522,6 +662,54 @@ class HomelabStudio {
           this.diagram.importConnection(action.data);
           this.connections.renderConnection(action.data);
           break;
+        case "create-group":
+          // Undo create = remove the group
+          this.diagram.removeGroup(action.id);
+          document.querySelector(`[data-group-id="${action.id}"]`)?.remove();
+          // Reset node colors
+          action.data.nodeIds.forEach((nodeId) => {
+            const nodeEl = document.querySelector(`[data-node-id="${nodeId}"]`);
+            if (nodeEl) {
+              const titleEl = nodeEl.querySelector(".node-title");
+              if (titleEl) titleEl.style.color = "";
+            }
+          });
+          break;
+        case "remove-group":
+          // Undo remove = recreate the group
+          this.diagram.importGroup(action.data);
+          this.canvas.renderGroup(action.data);
+          break;
+        case "add-to-group":
+          // Undo add = remove nodes from group
+          const group1 = this.diagram.groups.get(action.groupId);
+          if (group1) {
+            group1.nodeIds = group1.nodeIds.filter(
+              (id) => !action.nodeIds.includes(id)
+            );
+            // Reset colors
+            action.nodeIds.forEach((nodeId) => {
+              const nodeEl = document.querySelector(
+                `[data-node-id="${nodeId}"]`
+              );
+              if (nodeEl) {
+                const titleEl = nodeEl.querySelector(".node-title");
+                if (titleEl) titleEl.style.color = "";
+              }
+            });
+            this.canvas.renderGroup(group1);
+          }
+          break;
+        case "remove-from-group":
+          // Undo remove = add nodes back to groups
+          action.changes.forEach((change) => {
+            const group = this.diagram.groups.get(change.groupId);
+            if (group) {
+              group.nodeIds.push(...change.nodeIds);
+              this.canvas.renderGroup(group);
+            }
+          });
+          break;
       }
     } else {
       switch (action.type) {
@@ -542,6 +730,54 @@ class HomelabStudio {
           document
             .querySelector(`[data-connection-id="${action.connectionId}"]`)
             ?.remove();
+          break;
+        case "create-group":
+          // Redo create = recreate the group
+          this.diagram.importGroup(action.data);
+          this.canvas.renderGroup(action.data);
+          break;
+        case "remove-group":
+          // Redo remove = remove the group again
+          this.diagram.removeGroup(action.id);
+          document.querySelector(`[data-group-id="${action.id}"]`)?.remove();
+          // Reset node colors
+          action.data.nodeIds.forEach((nodeId) => {
+            const nodeEl = document.querySelector(`[data-node-id="${nodeId}"]`);
+            if (nodeEl) {
+              const titleEl = nodeEl.querySelector(".node-title");
+              if (titleEl) titleEl.style.color = "";
+            }
+          });
+          break;
+        case "add-to-group":
+          // Redo add = add nodes to group
+          const group2 = this.diagram.groups.get(action.groupId);
+          if (group2) {
+            group2.nodeIds.push(...action.nodeIds);
+            this.canvas.renderGroup(group2);
+          }
+          break;
+        case "remove-from-group":
+          // Redo remove = remove nodes from groups
+          action.changes.forEach((change) => {
+            const group = this.diagram.groups.get(change.groupId);
+            if (group) {
+              group.nodeIds = group.nodeIds.filter(
+                (id) => !change.nodeIds.includes(id)
+              );
+              // Reset colors
+              change.nodeIds.forEach((nodeId) => {
+                const nodeEl = document.querySelector(
+                  `[data-node-id="${nodeId}"]`
+                );
+                if (nodeEl) {
+                  const titleEl = nodeEl.querySelector(".node-title");
+                  if (titleEl) titleEl.style.color = "";
+                }
+              });
+              this.canvas.renderGroup(group);
+            }
+          });
           break;
       }
     }
