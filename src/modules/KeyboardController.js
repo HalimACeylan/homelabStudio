@@ -109,6 +109,88 @@ export class KeyboardController {
       this.app.ui.confirmNewDiagram();
     }
 
+    // Group selected nodes (Cmd/Ctrl + G)
+    if (cmdKey && e.key === "g" && !e.shiftKey) {
+      const selectedIds = this.app.canvas.selectedNodeIds;
+      if (selectedIds && selectedIds.size >= 2) {
+        e.preventDefault();
+        this.app.createGroup(Array.from(selectedIds));
+        this.app.ui.showToast(
+          `Created group with ${selectedIds.size} nodes`,
+          "success"
+        );
+      } else if (selectedIds && selectedIds.size === 1) {
+        e.preventDefault();
+        this.app.ui.showToast(
+          "Select at least 2 nodes to create a group",
+          "warning"
+        );
+      }
+    }
+
+    // Ungroup / Remove from group (Cmd/Ctrl + Shift + G)
+    if (cmdKey && e.key === "G" && e.shiftKey) {
+      const selectedIds = this.app.canvas.selectedNodeIds;
+      if (selectedIds && selectedIds.size > 0) {
+        e.preventDefault();
+
+        let removedCount = 0;
+        const groupsToUpdate = new Set();
+        const nodesToRemove = Array.from(selectedIds);
+
+        // Find and remove nodes from their groups
+        this.app.diagram.groups.forEach((group, groupId) => {
+          nodesToRemove.forEach((nodeId) => {
+            if (group.nodeIds.includes(nodeId)) {
+              group.nodeIds = group.nodeIds.filter((id) => id !== nodeId);
+              groupsToUpdate.add(groupId);
+              removedCount++;
+
+              // Reset node title color
+              const nodeEl = document.querySelector(
+                `[data-node-id="${nodeId}"]`
+              );
+              if (nodeEl) {
+                const titleEl = nodeEl.querySelector(".node-title");
+                if (titleEl) {
+                  titleEl.style.color = "";
+                }
+              }
+            }
+          });
+
+          // If group is now empty, delete it
+          if (group.nodeIds.length === 0) {
+            this.app.diagram.removeGroup(groupId);
+            const el = document.querySelector(`[data-group-id="${groupId}"]`);
+            if (el) el.remove();
+          }
+        });
+
+        // Update remaining groups
+        groupsToUpdate.forEach((groupId) => {
+          const group = this.app.diagram.groups.get(groupId);
+          if (group && group.nodeIds.length > 0) {
+            // Clean up any invalid node IDs
+            group.nodeIds = group.nodeIds.filter((nodeId) =>
+              this.app.diagram.nodes.has(nodeId)
+            );
+            this.app.canvas.renderGroup(group);
+          }
+        });
+
+        if (removedCount > 0) {
+          this.app.diagram.updateModified();
+          this.app.ui.showToast(
+            `Removed ${removedCount} node(s) from group(s)`,
+            "success"
+          );
+        } else {
+          this.app.ui.showToast("Selected nodes are not in any group", "info");
+        }
+      }
+    }
+
     // Zoom controls
     if (cmdKey && (e.key === "+" || e.key === "=")) {
       e.preventDefault();
