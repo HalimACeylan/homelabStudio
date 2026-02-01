@@ -35,6 +35,7 @@ export class PropertiesPanel {
 
   showNodeProperties(node) {
     const nodeType = NODE_TYPES[node.type] || NODE_TYPES.server;
+    const isHardware = nodeType.category === "hardware";
     const resourceLoad = this.app.canvas.nodeRenderer.calculateResources(node);
 
     this.content.innerHTML = `
@@ -140,6 +141,9 @@ export class PropertiesPanel {
         </div>
       </div>
 
+      ${
+        isHardware
+          ? `
       <div class="property-group">
         <div class="property-group-title">Specifications</div>
         <div class="property-row">
@@ -187,17 +191,20 @@ export class PropertiesPanel {
           <div class="spec-header">
             <label class="property-label">Storage Capacity</label>
             <div style="display: flex; align-items: center;">
-              <input type="number" step="10" min="10" max="8192" 
+              <input type="number" step="1" min="1" max="8192" 
                      class="spec-numeric-input" id="prop-storage-num" 
-                     value="${parseInt(node.properties.storage) || 100}">
+                     value="${parseInt(node.properties.storage) || 128}">
               <span class="spec-unit">GB</span>
             </div>
           </div>
-          <input type="range" step="10" min="10" max="8192" 
+          <input type="range" step="1" min="1" max="8192" 
                  class="spec-slider storage" id="prop-storage-range" 
-                 value="${parseInt(node.properties.storage) || 100}">
+                 value="${parseInt(node.properties.storage) || 128}">
         </div>
       </div>
+      `
+          : ""
+      }
 
       <div class="property-group">
         <div class="property-group-title">Position</div>

@@ -320,6 +320,7 @@ export const NODE_TYPES = {
       ip: "",
       model: "",
       gateway: "",
+      description: "",
     },
   },
   switch: {
@@ -334,6 +335,7 @@ export const NODE_TYPES = {
       ip: "",
       model: "",
       ports: "24",
+      description: "",
     },
   },
   "custom-network": {

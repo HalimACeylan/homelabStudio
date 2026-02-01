@@ -329,20 +329,41 @@ export class NodeRenderer {
                }" style="width: ${resourceLoad.storage.percent}%"></div></div>
              </div>
           </div>
+        `
+            : ""
+        }
 
-          <div class="node-specs">
-            ${
-              node.properties.os
-                ? `<span class="spec-tag os-tag">
-                    <span class="spec-icon">${
-                      this.icons[node.properties.os.toLowerCase()] || ""
-                    }</span>
-                    ${node.properties.os}
-                   </span>`
-                : ""
-            }
-          </div>
+        <div class="node-specs">
+          ${
+            isHardware && node.properties.os
+              ? `<span class="spec-tag os-tag">
+                  <span class="spec-icon">${
+                    this.icons[node.properties.os.toLowerCase()] || ""
+                  }</span>
+                  ${node.properties.os}
+                 </span>`
+              : ""
+          }
+          ${
+            isHardware && node.properties.ram
+              ? `<span class="spec-tag">${node.properties.ram} GB RAM</span>`
+              : ""
+          }
+          ${
+            isHardware && node.properties.storage
+              ? `<span class="spec-tag">${node.properties.storage} GB Storage</span>`
+              : ""
+          }
+          ${
+            !isHardware && node.properties.description
+              ? `<span class="spec-tag">${node.properties.description}</span>`
+              : ""
+          }
+        </div>
 
+        ${
+          isHardware
+            ? `
           <div class="node-apps-container ${
             apps.length > 0 ||
             (node.osEnvironments && node.osEnvironments.length > 0)
@@ -557,17 +578,26 @@ export class NodeRenderer {
     const specsEl = element.querySelector(".node-specs");
     if (specsEl) {
       let specsHTML = "";
-      if (node.properties.os) {
-        const osId = node.properties.osId || node.properties.os.toLowerCase();
-        specsHTML += `<span class="spec-tag os-tag">
-                        <span class="spec-icon">${this.icons[osId] || ""}</span>
-                        ${node.properties.os}
-                      </span>`;
+      const isHardware = nodeType.category === "hardware";
+
+      if (isHardware) {
+        if (node.properties.os) {
+          const osId = node.properties.osId || node.properties.os.toLowerCase();
+          specsHTML += `<span class="spec-tag os-tag">
+                          <span class="spec-icon">${
+                            this.icons[osId] || ""
+                          }</span>
+                          ${node.properties.os}
+                        </span>`;
+        }
+        if (node.properties.ram)
+          specsHTML += `<span class="spec-tag">${node.properties.ram} GB RAM</span>`;
+        if (node.properties.storage)
+          specsHTML += `<span class="spec-tag">${node.properties.storage} GB Storage</span>`;
+      } else if (node.properties.description) {
+        specsHTML += `<span class="spec-tag">${node.properties.description}</span>`;
       }
-      if (node.properties.ram)
-        specsHTML += `<span class="spec-tag">${node.properties.ram} GB RAM</span>`;
-      if (node.properties.storage)
-        specsHTML += `<span class="spec-tag">${node.properties.storage} GB Storage</span>`;
+
       specsEl.innerHTML = specsHTML;
     }
 
