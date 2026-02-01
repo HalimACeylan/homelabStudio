@@ -9,6 +9,8 @@ export class PropertiesPanel {
     this.app = app;
     this.panel = document.getElementById("properties-panel");
     this.content = document.getElementById("panel-content");
+    this.selectedNodeId = null;
+    this.selectedConnectionId = null;
 
     this.setupEventListeners();
   }
@@ -20,6 +22,8 @@ export class PropertiesPanel {
   }
 
   clear() {
+    this.selectedNodeId = null;
+    this.selectedConnectionId = null;
     this.content.innerHTML = `
       <div class="empty-panel">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -34,6 +38,8 @@ export class PropertiesPanel {
   }
 
   showNodeProperties(node) {
+    this.selectedNodeId = node.id;
+    this.selectedConnectionId = null;
     const nodeType = NODE_TYPES[node.type] || NODE_TYPES.server;
     const isHardware = nodeType.category === "hardware";
     const resourceLoad = this.app.canvas.nodeRenderer.calculateResources(node);
