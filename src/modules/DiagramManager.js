@@ -301,10 +301,9 @@ export class DiagramManager {
     return {
       version: "1.0.0",
       metadata: this.metadata,
-      nodes: Array.from(this.nodes.values()),
+      groups: Array.from(this.groups.values()),
       nodes: Array.from(this.nodes.values()),
       connections: Array.from(this.connections.values()),
-      groups: Array.from(this.groups.values()),
     };
   }
 

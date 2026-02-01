@@ -392,6 +392,9 @@ class HomelabStudio {
       this.connections.initDefs();
     }
 
+    // Clear groups layer
+    document.getElementById("groups-layer").innerHTML = "";
+
     this.updateNodeCount();
     this.updateConnectionCount();
     this.properties.clear();
@@ -407,6 +410,15 @@ class HomelabStudio {
   importDiagram(data) {
     this.clearDiagram();
 
+    // Import groups first
+    if (data.groups) {
+      data.groups.forEach((group) => {
+        const imported = this.diagram.importGroup(group);
+        this.canvas.renderGroup(imported);
+      });
+    }
+
+    // Then import nodes
     if (data.nodes) {
       data.nodes.forEach((node) => {
         const imported = this.diagram.importNode(node);
@@ -414,6 +426,7 @@ class HomelabStudio {
       });
     }
 
+    // Finally import connections
     if (data.connections) {
       data.connections.forEach((conn) => {
         const imported = this.diagram.importConnection(conn);
