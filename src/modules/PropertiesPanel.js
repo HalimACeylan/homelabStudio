@@ -64,7 +64,9 @@ export class PropertiesPanel {
         <div class="property-resource-group">
           <div class="resource-row">
             <div class="resource-info">
-              <span class="resource-label">CPU</span>
+              <span class="resource-label">CPU (${resourceLoad.cpu.max.toFixed(
+                1
+              )} GHz)</span>
               <span class="resource-value">${resourceLoad.cpu.percent.toFixed(
                 0
               )}%</span>
@@ -77,7 +79,11 @@ export class PropertiesPanel {
           </div>
           <div class="resource-row">
             <div class="resource-info">
-              <span class="resource-label">RAM</span>
+              <span class="resource-label">RAM (${
+                resourceLoad.ram.max >= 1024
+                  ? (resourceLoad.ram.max / 1024).toFixed(0) + " GB"
+                  : resourceLoad.ram.max + " MB"
+              })</span>
               <span class="resource-value">${resourceLoad.ram.percent.toFixed(
                 0
               )}%</span>
@@ -90,7 +96,9 @@ export class PropertiesPanel {
           </div>
           <div class="resource-row">
             <div class="resource-info">
-              <span class="resource-label">Storage</span>
+              <span class="resource-label">Storage (${
+                resourceLoad.storage.max
+              } GB)</span>
               <span class="resource-value">${resourceLoad.storage.percent.toFixed(
                 0
               )}%</span>
@@ -362,8 +370,66 @@ export class PropertiesPanel {
     node.properties[property] = value;
     this.app.diagram.updateModified();
 
-    // Update visual representation
+    // Update canvas visual representation
     this.app.nodeRenderer.updateNodeElement(nodeId, node);
+
+    // Update sidebar resource load if it exists
+    const resourceLoad = this.app.nodeRenderer.calculateResources(node);
+    if (resourceLoad) {
+      const resourceGroup = this.content.querySelector(
+        ".property-resource-group"
+      );
+      if (resourceGroup) {
+        // CPU
+        const cpuRow = resourceGroup.querySelector(
+          ".resource-row:nth-child(1)"
+        );
+        if (cpuRow) {
+          const label = cpuRow.querySelector(".resource-label");
+          const value = cpuRow.querySelector(".resource-value");
+          const fill = cpuRow.querySelector(".resource-bar-fill");
+          if (label)
+            label.textContent = `CPU (${resourceLoad.cpu.max.toFixed(1)} GHz)`;
+          if (value)
+            value.textContent = `${resourceLoad.cpu.percent.toFixed(0)}%`;
+          if (fill) fill.style.width = `${resourceLoad.cpu.percent}%`;
+        }
+
+        // RAM
+        const ramRow = resourceGroup.querySelector(
+          ".resource-row:nth-child(2)"
+        );
+        if (ramRow) {
+          const label = ramRow.querySelector(".resource-label");
+          const value = ramRow.querySelector(".resource-value");
+          const fill = ramRow.querySelector(".resource-bar-fill");
+          if (label)
+            label.textContent = `RAM (${
+              resourceLoad.ram.max >= 1024
+                ? (resourceLoad.ram.max / 1024).toFixed(0) + " GB"
+                : resourceLoad.ram.max + " MB"
+            })`;
+          if (value)
+            value.textContent = `${resourceLoad.ram.percent.toFixed(0)}%`;
+          if (fill) fill.style.width = `${resourceLoad.ram.percent}%`;
+        }
+
+        // Storage
+        const storageRow = resourceGroup.querySelector(
+          ".resource-row:nth-child(3)"
+        );
+        if (storageRow) {
+          const label = storageRow.querySelector(".resource-label");
+          const value = storageRow.querySelector(".resource-value");
+          const fill = storageRow.querySelector(".resource-bar-fill");
+          if (label)
+            label.textContent = `Storage (${resourceLoad.storage.max} GB)`;
+          if (value)
+            value.textContent = `${resourceLoad.storage.percent.toFixed(0)}%`;
+          if (fill) fill.style.width = `${resourceLoad.storage.percent}%`;
+        }
+      }
+    }
   }
 
   showConnectionProperties(connection) {

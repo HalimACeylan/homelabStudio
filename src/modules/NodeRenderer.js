@@ -285,9 +285,11 @@ export class NodeRenderer {
             ? `
           <div class="node-resource-load">
              <div class="load-bar-group">
-               <div class="load-label"><span>CPU</span> <span>${resourceLoad.cpu.percent.toFixed(
-                 0
-               )}%</span></div>
+               <div class="load-label"><span>CPU (${resourceLoad.cpu.max.toFixed(
+                 1
+               )} GHz)</span> <span>${resourceLoad.cpu.percent.toFixed(
+                0
+              )}%</span></div>
                <div class="load-bar"><div class="load-fill cpu" data-load-level="${
                  resourceLoad.cpu.percent > 90
                    ? "critical"
@@ -297,9 +299,13 @@ export class NodeRenderer {
                }" style="width: ${resourceLoad.cpu.percent}%"></div></div>
              </div>
              <div class="load-bar-group">
-               <div class="load-label"><span>RAM</span> <span>${resourceLoad.ram.percent.toFixed(
-                 0
-               )}%</span></div>
+               <div class="load-label"><span>RAM (${
+                 resourceLoad.ram.max >= 1024
+                   ? (resourceLoad.ram.max / 1024).toFixed(0) + " GB"
+                   : resourceLoad.ram.max + " MB"
+               })</span> <span>${resourceLoad.ram.percent.toFixed(
+                0
+              )}%</span></div>
                <div class="load-bar"><div class="load-fill ram" data-load-level="${
                  resourceLoad.ram.percent > 90
                    ? "critical"
@@ -309,9 +315,11 @@ export class NodeRenderer {
                }" style="width: ${resourceLoad.ram.percent}%"></div></div>
              </div>
              <div class="load-bar-group">
-               <div class="load-label"><span>Storage</span> <span>${resourceLoad.storage.percent.toFixed(
-                 0
-               )}%</span></div>
+               <div class="load-label"><span>Storage (${
+                 resourceLoad.storage.max
+               } GB)</span> <span>${resourceLoad.storage.percent.toFixed(
+                0
+              )}%</span></div>
                <div class="load-bar"><div class="load-fill storage" data-load-level="${
                  resourceLoad.storage.percent > 90
                    ? "critical"
@@ -331,11 +339,6 @@ export class NodeRenderer {
                     }</span>
                     ${node.properties.os}
                    </span>`
-                : ""
-            }
-            ${
-              node.properties.ram
-                ? `<span class="spec-tag">${node.properties.ram} RAM</span>`
                 : ""
             }
           </div>
@@ -447,7 +450,7 @@ export class NodeRenderer {
     // Update subtitle
     const subtitleEl = element.querySelector(".node-subtitle");
     if (subtitleEl) {
-      subtitleEl.textContent = node.properties.ip || node.type;
+      subtitleEl.textContent = node.properties.ip || "";
     }
 
     // Update status
@@ -461,42 +464,91 @@ export class NodeRenderer {
     if (resourceLoad) {
       const loadContainer = element.querySelector(".node-resource-load");
       if (loadContainer) {
-        const cpuFill = loadContainer.querySelector(".load-fill.cpu");
-        const ramFill = loadContainer.querySelector(".load-fill.ram");
-        const cpuLabel = loadContainer.querySelector(
-          ".load-bar-group:first-child .load-label span:last-child"
+        // CPU Update
+        const cpuGroup = loadContainer.querySelector(
+          ".load-bar-group:nth-child(1)"
         );
-        const ramLabel = loadContainer.querySelector(
-          ".load-bar-group:last-child .load-label span:last-child"
+        if (cpuGroup) {
+          const labels = cpuGroup.querySelectorAll(".load-label span");
+          if (labels[0])
+            labels[0].textContent = `CPU (${resourceLoad.cpu.max.toFixed(
+              1
+            )} GHz)`;
+          if (labels[1])
+            labels[1].textContent = `${resourceLoad.cpu.percent.toFixed(0)}%`;
+
+          const fill = cpuGroup.querySelector(".load-fill");
+          if (fill) {
+            fill.style.width = `${resourceLoad.cpu.percent}%`;
+            fill.dataset.loadLevel =
+              resourceLoad.cpu.percent > 90
+                ? "critical"
+                : resourceLoad.cpu.percent > 70
+                ? "warning"
+                : "normal";
+          }
+        }
+
+        // RAM Update
+        const ramGroup = loadContainer.querySelector(
+          ".load-bar-group:nth-child(2)"
         );
+        if (ramGroup) {
+          const labels = ramGroup.querySelectorAll(".load-label span");
+          if (labels[0])
+            labels[0].textContent = `RAM (${
+              resourceLoad.ram.max >= 1024
+                ? (resourceLoad.ram.max / 1024).toFixed(0) + " GB"
+                : resourceLoad.ram.max + " MB"
+            })`;
+          if (labels[1])
+            labels[1].textContent = `${resourceLoad.ram.percent.toFixed(0)}%`;
 
-        if (cpuFill) {
-          cpuFill.style.width = `${resourceLoad.cpu.percent}%`;
-          cpuFill.dataset.loadLevel =
-            resourceLoad.cpu.percent > 90
-              ? "critical"
-              : resourceLoad.cpu.percent > 70
-              ? "warning"
-              : "normal";
+          const fill = ramGroup.querySelector(".load-fill");
+          if (fill) {
+            fill.style.width = `${resourceLoad.ram.percent}%`;
+            fill.dataset.loadLevel =
+              resourceLoad.ram.percent > 90
+                ? "critical"
+                : resourceLoad.ram.percent > 70
+                ? "warning"
+                : "normal";
+          }
         }
-        if (ramFill) {
-          ramFill.style.width = `${resourceLoad.ram.percent}%`;
-          ramFill.dataset.loadLevel =
-            resourceLoad.ram.percent > 90
-              ? "critical"
-              : resourceLoad.ram.percent > 70
-              ? "warning"
-              : "normal";
-        }
-        if (cpuLabel)
-          cpuLabel.textContent = `${resourceLoad.cpu.percent.toFixed(0)}%`;
-        if (ramLabel)
-          ramLabel.textContent = `${resourceLoad.ram.percent.toFixed(0)}%`;
 
-        // Update status based on load
+        // Storage Update
+        const storageGroup = loadContainer.querySelector(
+          ".load-bar-group:nth-child(3)"
+        );
+        if (storageGroup) {
+          const labels = storageGroup.querySelectorAll(".load-label span");
+          if (labels[0])
+            labels[0].textContent = `Storage (${resourceLoad.storage.max} GB)`;
+          if (labels[1])
+            labels[1].textContent = `${resourceLoad.storage.percent.toFixed(
+              0
+            )}%`;
+
+          const fill = storageGroup.querySelector(".load-fill");
+          if (fill) {
+            fill.style.width = `${resourceLoad.storage.percent}%`;
+            fill.dataset.loadLevel =
+              resourceLoad.storage.percent > 90
+                ? "critical"
+                : resourceLoad.storage.percent > 70
+                ? "warning"
+                : "normal";
+          }
+        }
+
+        // Update status indicator based on load
         if (resourceLoad.cpu.percent > 90 || resourceLoad.ram.percent > 90) {
-          node.properties.status = "warning";
           if (statusEl) statusEl.className = "node-status warning";
+        } else if (
+          !node.properties.status ||
+          node.properties.status === "online"
+        ) {
+          if (statusEl) statusEl.className = "node-status online";
         }
       }
     }
@@ -513,7 +565,9 @@ export class NodeRenderer {
                       </span>`;
       }
       if (node.properties.ram)
-        specsHTML += `<span class="spec-tag">${node.properties.ram} RAM</span>`;
+        specsHTML += `<span class="spec-tag">${node.properties.ram} GB RAM</span>`;
+      if (node.properties.storage)
+        specsHTML += `<span class="spec-tag">${node.properties.storage} GB Storage</span>`;
       specsEl.innerHTML = specsHTML;
     }
 

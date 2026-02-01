@@ -776,7 +776,11 @@ export class UIController {
           cpuLabel.setAttribute("fill", "#8b949e");
           cpuLabel.setAttribute("font-size", "11");
           cpuLabel.setAttribute("font-family", "Inter, sans-serif");
-          cpuLabel.textContent = "CPU";
+          cpuLabel.textContent = `CPU (${
+            node.properties.cpu ||
+            NODE_TYPES[node.type]?.properties?.cpu ||
+            "1.0"
+          } GHz)`;
           svg.appendChild(cpuLabel);
 
           const cpuValue = document.createElementNS(
@@ -789,7 +793,9 @@ export class UIController {
           cpuValue.setAttribute("font-size", "11");
           cpuValue.setAttribute("font-family", "Inter, sans-serif");
           cpuValue.setAttribute("text-anchor", "end");
-          cpuValue.textContent = node.properties.cpu || "0%";
+
+          const load = this.app.canvas.nodeRenderer.calculateResources(node);
+          cpuValue.textContent = `${load.cpu.percent.toFixed(0)}%`;
           svg.appendChild(cpuValue);
 
           yOffset += 30;
@@ -804,7 +810,11 @@ export class UIController {
           ramLabel.setAttribute("fill", "#8b949e");
           ramLabel.setAttribute("font-size", "11");
           ramLabel.setAttribute("font-family", "Inter, sans-serif");
-          ramLabel.textContent = "RAM";
+          ramLabel.textContent = `RAM (${
+            load.ram.max >= 1024
+              ? (load.ram.max / 1024).toFixed(0) + "GB"
+              : load.ram.max + "MB"
+          })`;
           svg.appendChild(ramLabel);
 
           const ramValue = document.createElementNS(
@@ -817,8 +827,36 @@ export class UIController {
           ramValue.setAttribute("font-size", "11");
           ramValue.setAttribute("font-family", "Inter, sans-serif");
           ramValue.setAttribute("text-anchor", "end");
-          ramValue.textContent = node.properties.ram || "0%";
+          ramValue.textContent = `${load.ram.percent.toFixed(0)}%`;
           svg.appendChild(ramValue);
+
+          yOffset += 30;
+
+          // Storage
+          const storageLabel = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text"
+          );
+          storageLabel.setAttribute("x", x + 20);
+          storageLabel.setAttribute("y", y + yOffset);
+          storageLabel.setAttribute("fill", "#8b949e");
+          storageLabel.setAttribute("font-size", "11");
+          storageLabel.setAttribute("font-family", "Inter, sans-serif");
+          storageLabel.textContent = `Storage (${load.storage.max}GB)`;
+          svg.appendChild(storageLabel);
+
+          const storageValue = document.createElementNS(
+            "http://www.w3.org/2000/svg",
+            "text"
+          );
+          storageValue.setAttribute("x", x + node.width - 20);
+          storageValue.setAttribute("y", y + yOffset);
+          storageValue.setAttribute("fill", "#c9d1d9");
+          storageValue.setAttribute("font-size", "11");
+          storageValue.setAttribute("font-family", "Inter, sans-serif");
+          storageValue.setAttribute("text-anchor", "end");
+          storageValue.textContent = `${load.storage.percent.toFixed(0)}%`;
+          svg.appendChild(storageValue);
         }
 
         // Status indicator
