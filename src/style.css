@@ -578,6 +578,19 @@ body {
   border-left: 2px solid var(--accent-cyan);
 }
 
+/* User Devices Section */
+.palette-section[data-section="user-devices"] .palette-section-header {
+  color: #ec4899;
+}
+
+.palette-section[data-section="user-devices"] .palette-section-header:hover {
+  background: rgba(236, 72, 153, 0.1);
+}
+
+.palette-section[data-section="user-devices"] .palette-item {
+  border-left: 2px solid #ec4899;
+}
+
 .palette-items {
   display: grid;
   grid-template-columns: repeat(2, 1fr);

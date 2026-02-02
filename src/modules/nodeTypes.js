@@ -235,6 +235,160 @@ export const APPLICATION_TYPES = {
   },
 };
 
+// User Devices - End-user equipment (TVs, phones, etc.)
+const USER_DEVICE_TYPES = {
+  tv: {
+    name: "TV",
+    icon: "tv",
+    color: "#ec4899",
+    category: "user-device",
+    description: "Smart TV or display",
+    defaultName: "TV",
+    defaultWidth: 180,
+    defaultHeight: 80,
+    properties: {
+      name: "",
+      ip: "",
+      description: "",
+    },
+  },
+  smartphone: {
+    name: "Smartphone",
+    icon: "smartphone",
+    color: "#8b5cf6",
+    category: "user-device",
+    description: "Mobile phone",
+    defaultName: "Phone",
+    defaultWidth: 180,
+    defaultHeight: 80,
+    properties: {
+      name: "",
+      ip: "",
+      description: "",
+    },
+  },
+  tablet: {
+    name: "Tablet",
+    icon: "tablet",
+    color: "#06b6d4",
+    category: "user-device",
+    description: "Tablet device",
+    defaultName: "Tablet",
+    defaultWidth: 180,
+    defaultHeight: 80,
+    properties: {
+      name: "",
+      ip: "",
+      description: "",
+    },
+  },
+  laptop: {
+    name: "Laptop",
+    icon: "laptop",
+    color: "#3b82f6",
+    category: "user-device",
+    description: "Laptop computer",
+    defaultName: "Laptop",
+    defaultWidth: 180,
+    defaultHeight: 80,
+    properties: {
+      name: "",
+      ip: "",
+      description: "",
+    },
+  },
+  desktop: {
+    name: "Desktop PC",
+    icon: "desktop",
+    color: "#6366f1",
+    category: "user-device",
+    description: "Desktop computer",
+    defaultName: "Desktop",
+    defaultWidth: 180,
+    defaultHeight: 80,
+    properties: {
+      name: "",
+      ip: "",
+      description: "",
+    },
+  },
+  printer: {
+    name: "Printer",
+    icon: "printer",
+    color: "#64748b",
+    category: "user-device",
+    description: "Network printer",
+    defaultName: "Printer",
+    defaultWidth: 180,
+    defaultHeight: 80,
+    properties: {
+      name: "",
+      ip: "",
+      description: "",
+    },
+  },
+  camera: {
+    name: "IP Camera",
+    icon: "camera",
+    color: "#ef4444",
+    category: "user-device",
+    description: "Security camera",
+    defaultName: "Camera",
+    defaultWidth: 180,
+    defaultHeight: 80,
+    properties: {
+      name: "",
+      ip: "",
+      description: "",
+    },
+  },
+  speaker: {
+    name: "Smart Speaker",
+    icon: "speaker",
+    color: "#f59e0b",
+    category: "user-device",
+    description: "Smart speaker or audio device",
+    defaultName: "Speaker",
+    defaultWidth: 180,
+    defaultHeight: 80,
+    properties: {
+      name: "",
+      ip: "",
+      description: "",
+    },
+  },
+  "game-console": {
+    name: "Game Console",
+    icon: "game-console",
+    color: "#10b981",
+    category: "user-device",
+    description: "Gaming console",
+    defaultName: "Console",
+    defaultWidth: 180,
+    defaultHeight: 80,
+    properties: {
+      name: "",
+      ip: "",
+      description: "",
+    },
+  },
+  "iot-device": {
+    name: "IoT Device",
+    icon: "iot-device",
+    color: "#14b8a6",
+    category: "user-device",
+    description: "Smart home device",
+    defaultName: "IoT Device",
+    defaultWidth: 180,
+    defaultHeight: 80,
+    properties: {
+      name: "",
+      ip: "",
+      description: "",
+    },
+  },
+};
+
 export const NODE_TYPES = {
   // Hardware - expandable container nodes
   server: {
@@ -352,7 +506,51 @@ export const NODE_TYPES = {
       description: "",
     },
   },
+
+  // User Devices - End-user equipment
+  tv: {
+    ...USER_DEVICE_TYPES.tv,
+    canHaveApps: false,
+  },
+  smartphone: {
+    ...USER_DEVICE_TYPES.smartphone,
+    canHaveApps: false,
+  },
+  tablet: {
+    ...USER_DEVICE_TYPES.tablet,
+    canHaveApps: false,
+  },
+  laptop: {
+    ...USER_DEVICE_TYPES.laptop,
+    canHaveApps: false,
+  },
+  desktop: {
+    ...USER_DEVICE_TYPES.desktop,
+    canHaveApps: false,
+  },
+  printer: {
+    ...USER_DEVICE_TYPES.printer,
+    canHaveApps: false,
+  },
+  camera: {
+    ...USER_DEVICE_TYPES.camera,
+    canHaveApps: false,
+  },
+  speaker: {
+    ...USER_DEVICE_TYPES.speaker,
+    canHaveApps: false,
+  },
+  "game-console": {
+    ...USER_DEVICE_TYPES["game-console"],
+    canHaveApps: false,
+  },
+  "iot-device": {
+    ...USER_DEVICE_TYPES["iot-device"],
+    canHaveApps: false,
+  },
 };
+
+// User Devices - End-user equipment (TVs, phones, etc.)
 
 export const CONNECTION_TYPES = {
   ethernet: {
