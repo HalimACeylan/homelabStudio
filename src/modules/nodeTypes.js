@@ -233,6 +233,194 @@ export const APPLICATION_TYPES = {
     color: "#14b8a6",
     description: "Generic application or service",
   },
+
+  // --- Network & Security ---
+  frigate: {
+    name: "Frigate NVR",
+    icon: "camera",
+    color: "#ef4444",
+    description: "NVR with real-time object detection",
+  },
+  adguard: {
+    name: "AdGuard Home",
+    icon: "dns",
+    color: "#68bc71",
+    description: "Network-wide software for blocking ads & tracking",
+  },
+  traefik: {
+    name: "Traefik",
+    icon: "web-server",
+    color: "#24a1c1",
+    description: "Modern HTTP reverse proxy and load balancer",
+  },
+  wireguard: {
+    name: "WireGuard",
+    icon: "vpn",
+    color: "#88171a",
+    description: "Fast, modern, secure VPN tunnel",
+  },
+  tailscale: {
+    name: "Tailscale",
+    icon: "vpn",
+    color: "#18181b",
+    description: "Zero config VPN",
+  },
+  "cloudflare-dns": {
+    name: "Cloudflare DNS",
+    icon: "dns",
+    color: "#f38020",
+    description: "DNS service",
+  },
+  "cloudflare-tunnel": {
+    name: "Cloudflare Tunnel",
+    icon: "vpn",
+    color: "#f38020",
+    description: "Securely expose servers to internet",
+  },
+  "lets-encrypt": {
+    name: "Let's Encrypt",
+    icon: "vpn",
+    color: "#003a70",
+    description: "Certificate Authority",
+  },
+  heimdall: {
+    name: "Heimdall",
+    icon: "monitoring",
+    color: "#c2185b",
+    description: "Application dashboard",
+  },
+  pfsense: {
+    name: "pfSense",
+    icon: "router",
+    color: "#212121",
+    description: "Firewall and Router",
+  },
+  openwrt: {
+    name: "OpenWrt",
+    icon: "router",
+    color: "#dc0050",
+    description: "Linux operating system targeting embedded devices",
+  },
+
+  // --- Media & Storage ---
+  jellyfin: {
+    name: "Jellyfin",
+    icon: "media",
+    color: "#00a4dc",
+    description: "Free Software Media System",
+  },
+  photoprism: {
+    name: "PhotoPrism",
+    icon: "media",
+    color: "#aa00ff",
+    description: "AI-Powered Photos App",
+  },
+  immich: {
+    name: "Immich",
+    icon: "media",
+    color: "#4285f4",
+    description: "Self-hosted photo and video backup solution",
+  },
+  minio: {
+    name: "MinIO",
+    icon: "cloud-storage",
+    color: "#c72c48",
+    description: "High Performance Object Storage",
+  },
+  syncthing: {
+    name: "Syncthing",
+    icon: "cloud-storage",
+    color: "#0882c8",
+    description: "Continuous File Synchronization",
+  },
+
+  // --- Databases ---
+  influxdb: {
+    name: "InfluxDB",
+    icon: "database",
+    color: "#22adf6",
+    description: "Time series database",
+  },
+  redis: {
+    name: "Redis",
+    icon: "database",
+    color: "#d82c20",
+    description: "In-memory data structure store",
+  },
+  postgresql: {
+    name: "PostgreSQL",
+    icon: "database",
+    color: "#336791",
+    description: "Open source relational database",
+  },
+  mariadb: {
+    name: "MariaDB",
+    icon: "database",
+    color: "#003545",
+    description: "Open source relational database",
+  },
+  mongodb: {
+    name: "MongoDB",
+    icon: "database",
+    color: "#4db33d",
+    description: "NoSQL database program",
+  },
+
+  // --- Monitoring ---
+  prometheus: {
+    name: "Prometheus",
+    icon: "monitoring",
+    color: "#e6522c",
+    description: "Monitoring system and time series database",
+  },
+  "uptime-kuma": {
+    name: "Uptime Kuma",
+    icon: "monitoring",
+    color: "#17b897",
+    description: "Self-hosted monitoring tool",
+  },
+
+  // --- Management & Virtualization ---
+  "synology-container-manager": {
+    name: "Container Manager",
+    icon: "container",
+    color: "#005a9e",
+    description: "Synology Docker Management",
+  },
+
+  // --- AI & Productivity ---
+  ollama: {
+    name: "Ollama",
+    icon: "service",
+    color: "#000000",
+    description: "Get up and running with large language models",
+  },
+  "open-webui": {
+    name: "Open WebUI",
+    icon: "service",
+    color: "#303030",
+    description: "User-friendly WebUI for LLMs",
+  },
+  obsidian: {
+    name: "Obsidian",
+    icon: "service",
+    color: "#7c3aed",
+    description: "Knowledge base",
+  },
+  "paperless-ngx": {
+    name: "Paperless-ngx",
+    icon: "service",
+    color: "#2a52be",
+    description: "Document management system",
+  },
+
+  // --- Automation ---
+  "node-red": {
+    name: "Node-RED",
+    icon: "service",
+    color: "#8f0000",
+    description: "Flow-based programming tool",
+  },
 };
 
 // User Devices - End-user equipment (TVs, phones, etc.)

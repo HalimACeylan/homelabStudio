@@ -3,151 +3,7 @@ import appResources from "../data/appResources.json";
 
 export class NodeRenderer {
   constructor() {
-    this.icons = this.createIconSVGs();
     this.resources = appResources;
-  }
-
-  createIconSVGs() {
-    return {
-      // Category fallback icons
-      hardware: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <rect x="2" y="3" width="20" height="6" rx="1"></rect>
-        <rect x="2" y="11" width="20" height="6" rx="1"></rect>
-        <circle cx="6" cy="6" r="1" fill="currentColor"></circle>
-        <circle cx="6" cy="14" r="1" fill="currentColor"></circle>
-      </svg>`,
-      network: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <rect x="2" y="10" width="20" height="8" rx="2"></rect>
-        <circle cx="6" cy="14" r="1.5" fill="currentColor"></circle>
-        <line x1="10" y1="14" x2="18" y2="14"></line>
-        <path d="M8 6 L12 2 L16 6"></path>
-      </svg>`,
-      os: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <circle cx="12" cy="12" r="10"></circle>
-        <circle cx="12" cy="6" r="2"></circle>
-        <circle cx="12" cy="18" r="2"></circle>
-        <circle cx="6" cy="12" r="2"></circle>
-      </svg>`,
-      service: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <rect x="3" y="3" width="18" height="18" rx="2"></rect>
-        <path d="M9 9h6v6H9z"></path>
-      </svg>`,
-
-      // Specific node icons
-      server: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <rect x="2" y="3" width="20" height="6" rx="1"></rect>
-        <rect x="2" y="11" width="20" height="6" rx="1"></rect>
-        <circle cx="6" cy="6" r="1" fill="currentColor"></circle>
-        <circle cx="6" cy="14" r="1" fill="currentColor"></circle>
-      </svg>`,
-      nas: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <rect x="2" y="4" width="20" height="16" rx="2"></rect>
-        <line x1="6" y1="8" x2="6" y2="16"></line>
-        <line x1="10" y1="8" x2="10" y2="16"></line>
-        <line x1="14" y1="8" x2="14" y2="16"></line>
-        <line x1="18" y1="8" x2="18" y2="16"></line>
-      </svg>`,
-      "raspberry-pi": `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <rect x="4" y="6" width="16" height="12" rx="2"></rect>
-        <circle cx="8" cy="12" r="2"></circle>
-        <circle cx="16" cy="12" r="2"></circle>
-        <line x1="2" y1="9" x2="4" y2="9"></line>
-        <line x1="2" y1="15" x2="4" y2="15"></line>
-      </svg>`,
-      router: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <rect x="2" y="10" width="20" height="8" rx="2"></rect>
-        <circle cx="6" cy="14" r="1.5" fill="currentColor"></circle>
-        <line x1="10" y1="14" x2="18" y2="14"></line>
-        <path d="M8 6 L12 2 L16 6"></path>
-      </svg>`,
-      switch: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <rect x="2" y="8" width="20" height="8" rx="1"></rect>
-        <line x1="6" y1="11" x2="6" y2="13"></line>
-        <line x1="10" y1="11" x2="10" y2="13"></line>
-        <line x1="14" y1="11" x2="14" y2="13"></line>
-        <line x1="18" y1="11" x2="18" y2="13"></line>
-      </svg>`,
-      ubuntu: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <circle cx="12" cy="12" r="10"></circle>
-        <circle cx="12" cy="6" r="2"></circle>
-        <circle cx="12" cy="18" r="2"></circle>
-        <circle cx="6" cy="12" r="2"></circle>
-      </svg>`,
-      debian: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M12 2C7.58 2 4 5.58 4 10c0 5.5 4.5 9 8 12 3.5-3 8-6.5 8-12 0-4.42-3.58-8-8-8z"></path>
-      </svg>`,
-      windows: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M3 5L10 4V11H3V5ZM3 13H10V20L3 19V13ZM11 11V3.5L21 2V11H11ZM11 13H21V22L11 20.5V13Z"></path>
-      </svg>`,
-      macos: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M17.05 20.28c-.96.95-2.06 1.72-3.23 1.72-1.16 0-1.54-.74-2.83-.74-1.29 0-1.74.72-2.82.72-1.07 0-2.1-.69-3.23-1.72-2.31-2.1-3.64-5.26-3.64-8.08 0-2.83 1.7-4.32 3.39-4.32.89 0 1.74.5 2.45.5.71 0 1.63-.51 2.53-.51 1.34 0 2.52.61 3.25 1.58-2.65 1.5-2.21 4.71.49 5.86-.48 1.1-.96 2.16-1.5 3.03l-.08.06zM12.03 5.46c-.03-2.13 1.83-3.95 3.86-4.04.14 2.19-1.52 4-3.86 4.04z"></path>
-      </svg>`,
-      casaos: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-        <polyline points="9 22 9 12 15 12 15 22"></polyline>
-      </svg>`,
-      umbrel: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M12 22v-4M8 18l4 4 4-4M12 2v10M12 12L8 8M12 12l4-4"></path>
-        <circle cx="12" cy="12" r="10"></circle>
-      </svg>`,
-      yunohost: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
-      </svg>`,
-      unraid: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <rect x="2" y="2" width="20" height="20" rx="2"></rect>
-        <path d="M7 7h10M7 12h10M7 17h10"></path>
-      </svg>`,
-      truenas_scale_os: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M20 7h-9m9 4h-11m11 4h-13M3 7h2m-2 4h4m-4 4h6"></path>
-        <rect x="2" y="3" width="20" height="18" rx="2"></rect>
-      </svg>`,
-      startos: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-        <circle cx="12" cy="12" r="3"></circle>
-      </svg>`,
-      omv: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <circle cx="12" cy="12" r="10"></circle>
-        <path d="M12 2v20M2 12h20"></path>
-      </svg>`,
-      proxmox_os: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M4 4l16 16M4 20L20 4M12 4v16M4 12h16"></path>
-        <circle cx="12" cy="12" r="10"></circle>
-      </svg>`,
-      xcp_ng: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
-        <path d="M12 12v10"></path>
-      </svg>`,
-      esxi: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <rect x="2" y="2" width="20" height="20" rx="2"></rect>
-        <path d="M6 6h12v12H6zM10 10h4v4h-4z"></path>
-      </svg>`,
-      harvester: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M12 2L2 12l10 10 10-10L12 2zM7 12h10M12 7v10"></path>
-      </svg>`,
-      ovirt: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M12 2c5.52 0 10 4.48 10 10s-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2zm0 4v12M6 12h12"></path>
-      </svg>`,
-      opennebula: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M12 2L2 12l10 10 10-10L12 2z"></path>
-        <circle cx="12" cy="12" r="4"></circle>
-      </svg>`,
-      citrix: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <circle cx="12" cy="12" r="10"></circle>
-        <path d="M12 8v8M8 12h8"></path>
-        <path d="M15 15l-6-6"></path>
-      </svg>`,
-      oracle_vm: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <ellipse cx="12" cy="12" rx="10" ry="6"></ellipse>
-        <circle cx="12" cy="12" r="2"></circle>
-      </svg>`,
-      smartos: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-        <path d="M12 2L2 7l10 5 10-5-10-5z"></path>
-        <path d="M2 17l10 5 10-5V7l-10 5-10-5v10z"></path>
-      </svg>`,
-      trash: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-      </svg>`,
-    };
   }
 
   summarizeEnvResources(envs, stats) {
@@ -265,13 +121,12 @@ export class NodeRenderer {
     };">
         
         <div class="node-header">
-          <div class="node-icon" style="color: ${nodeType.color}">
-            ${
-              this.icons[node.type] ||
-              this.icons[nodeType.category] ||
-              this.icons.server
-            }
-          </div>
+            <div class="node-icon ${
+              nodeType.icon
+                ? nodeType.icon + "-icon"
+                : nodeType.category + "-icon"
+            }">
+            </div>
           <div class="node-info">
             <span class="node-title">${
               node.properties.name || nodeType.defaultName
@@ -337,9 +192,11 @@ export class NodeRenderer {
           ${
             isHardware && node.properties.os
               ? `<span class="spec-tag os-tag">
-                  <span class="spec-icon">${
-                    this.icons[node.properties.os.toLowerCase()] || ""
-                  }</span>
+                  <span class="spec-icon ${
+                    node.properties.osId
+                      ? node.properties.osId + "-icon"
+                      : "os-icon"
+                  }"></span>
                   ${node.properties.os}
                  </span>`
               : ""
@@ -411,7 +268,7 @@ export class NodeRenderer {
         <div class="node-app-icon ${app.icon}-icon"></div>
         <span class="node-app-name">${app.name}</span>
         <button class="node-item-delete" data-action="delete-app" data-app-id="${appType}">
-          ${this.icons.trash}
+          <div class="trash-icon"></div>
         </button>
       </div>
     `;
@@ -424,17 +281,13 @@ export class NodeRenderer {
       <div class="os-env-group" data-os-env-id="${env.id}">
         <div class="os-env-header">
           <div class="os-env-icon">
-            ${
-              this.icons[env.typeId] ||
-              this.icons[env.type?.toLowerCase()] ||
-              this.icons.os
-            }
+            <div class="${env.typeId ? env.typeId + "-icon" : "os-icon"}"></div>
           </div>
           <span class="os-env-name">${env.type}</span>
           <button class="node-item-delete" data-action="delete-os" data-os-id="${
             env.id
           }">
-            ${this.icons.trash}
+            <div class="trash-icon"></div>
           </button>
         </div>
         <div class="os-env-content">
@@ -584,9 +437,7 @@ export class NodeRenderer {
         if (node.properties.os) {
           const osId = node.properties.osId || node.properties.os.toLowerCase();
           specsHTML += `<span class="spec-tag os-tag">
-                          <span class="spec-icon">${
-                            this.icons[osId] || ""
-                          }</span>
+                          <span class="spec-icon ${osId + "-icon"}"></span>
                           ${node.properties.os}
                         </span>`;
         }

@@ -1,4 +1,4 @@
-import { OS_TYPES, APPLICATION_TYPES } from "./nodeTypes.js";
+import { OS_TYPES, APPLICATION_TYPES, NODE_TYPES } from "./nodeTypes.js";
 
 export class PaletteController {
   constructor(app) {
@@ -6,23 +6,115 @@ export class PaletteController {
     this.palette = document.getElementById("palette");
     this.searchInput = document.getElementById("palette-search");
 
+    this.renderPalette();
     this.setupEventListeners();
     this.initializeSections();
-    this.renderIcons();
   }
 
-  renderIcons() {
-    this.palette.querySelectorAll(".palette-item").forEach((item) => {
-      const type = item.dataset.type;
-      const iconContainer = item.querySelector(".palette-item-icon");
-      if (iconContainer && type) {
-        // Use the icon from NodeRenderer if it exists
-        const iconSvg = this.app.nodeRenderer.icons[type];
-        if (iconSvg) {
-          iconContainer.innerHTML = iconSvg;
+  renderPalette() {
+    // Helper to create a palette item
+    const createItem = (type, config, category) => {
+      const item = document.createElement("div");
+      item.className = "palette-item";
+      item.draggable = true;
+      item.dataset.type = type;
+      if (category) item.dataset.category = category;
+
+      const iconDiv = document.createElement("div");
+      // Use specific icon class or fallback
+      const iconClass = config.icon ? `${config.icon}-icon` : "hardware-icon";
+      iconDiv.className = iconClass;
+      // Add palette-item-icon class for SVG injection if supported
+      iconDiv.classList.add("palette-item-icon");
+
+      const span = document.createElement("span");
+      span.textContent = config.name || config.defaultName || type;
+
+      item.appendChild(iconDiv);
+      item.appendChild(span);
+      return item;
+    };
+
+    // 1. Hardware
+    const hardwareSection = this.palette.querySelector(
+      '[data-section="hardware"] .palette-items'
+    );
+    if (hardwareSection) {
+      hardwareSection.innerHTML = ""; // Clear existing
+      Object.entries(NODE_TYPES).forEach(([type, config]) => {
+        if (config.category === "hardware") {
+          hardwareSection.appendChild(createItem(type, config));
         }
-      }
-    });
+      });
+    }
+
+    // 2. Network
+    const networkSection = this.palette.querySelector(
+      '[data-section="network"] .palette-items'
+    );
+    if (networkSection) {
+      networkSection.innerHTML = "";
+      Object.entries(NODE_TYPES).forEach(([type, config]) => {
+        if (config.category === "network") {
+          networkSection.appendChild(createItem(type, config));
+        }
+      });
+    }
+
+    // 3. Operating Systems
+    const osSection = this.palette.querySelector(
+      '[data-section="operating-system"] .palette-items'
+    );
+    if (osSection) {
+      osSection.innerHTML = "";
+      // Import OS_TYPES access via nodeTypes module or pass it in?
+      // Since we can't easily import inside a method if not available, verify imports.
+      // We imported OS_TYPES at top of file.
+      Object.entries(OS_TYPES).forEach(([type, config]) => {
+        // Exclude V-OS from this section if we want them separate
+        if (config.category !== "v-os") {
+          osSection.appendChild(createItem(type, config, "os"));
+        }
+      });
+    }
+
+    // 4. Hypervisors (V-OS)
+    const vosSection = this.palette.querySelector(
+      '[data-section="v-os"] .palette-items'
+    );
+    if (vosSection) {
+      vosSection.innerHTML = "";
+      Object.entries(OS_TYPES).forEach(([type, config]) => {
+        if (config.category === "v-os") {
+          vosSection.appendChild(createItem(type, config, "os"));
+        }
+      });
+    }
+
+    // 5. Applications
+    const appsSection = this.palette.querySelector(
+      '[data-section="applications"] .palette-items'
+    );
+    if (appsSection) {
+      appsSection.innerHTML = "";
+      Object.entries(APPLICATION_TYPES).forEach(([type, config]) => {
+        // Docker might be marked as v-os but it's an app
+        appsSection.appendChild(createItem(type, config, "application"));
+      });
+    }
+
+    // 6. User Devices
+    const devicesSection = this.palette.querySelector(
+      '[data-section="user-devices"] .palette-items'
+    );
+    if (devicesSection) {
+      devicesSection.innerHTML = "";
+      Object.entries(NODE_TYPES).forEach(([type, config]) => {
+        if (config.category === "user-device") {
+          devicesSection.appendChild(createItem(type, config));
+        }
+      });
+    }
   }
 
   setupEventListeners() {

@@ -472,10 +472,7 @@
   border-color: var(--accent-red);
 }
 
-.node-item-delete svg {
-  width: 12px;
-  height: 12px;
-}
+/* .node-item-delete svg removed as we use background-image now */
 
 .os-env-header .node-item-delete {
   position: relative;
