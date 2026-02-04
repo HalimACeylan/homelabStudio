@@ -53,6 +53,12 @@ export class UIController {
       .getElementById("btn-theme")
       .addEventListener("click", () => this.toggleTheme());
 
+    // Palette toggle
+    const paletteToggleBtn = document.getElementById("palette-toggle");
+    if (paletteToggleBtn) {
+      paletteToggleBtn.addEventListener("click", () => this.togglePalette());
+    }
+
     // Tool Selector (Flat pen-style row)
     const toolButtons = document.querySelectorAll("#tool-selector .tool-btn");
     toolButtons.forEach((btn) => {
@@ -120,6 +126,14 @@ export class UIController {
     const newTheme = currentTheme === "dark" ? "light" : "dark";
     document.documentElement.setAttribute("data-theme", newTheme);
     localStorage.setItem("homelab-theme", newTheme);
+  }
+
+  togglePalette() {
+    const palette = document.getElementById("palette");
+    if (palette) {
+      palette.classList.toggle("collapsed");
+      // Optionally update icon if needed, but handled via CSS transform
+    }
   }
 
   // Context Menu

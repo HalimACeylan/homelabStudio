@@ -432,6 +432,56 @@ body {
 .palette-header {
   padding: var(--spacing-md);
   border-bottom: 1px solid var(--border-primary);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+}
+
+.palette-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.palette-toggle:hover {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.palette-toggle svg {
+  width: 16px;
+  height: 16px;
+}
+
+.palette.collapsed {
+  width: 48px;
+}
+
+.palette.collapsed .palette-header {
+  padding: var(--spacing-sm);
+  justify-content: center;
+}
+
+.palette.collapsed .palette-header h2,
+.palette.collapsed .palette-search {
+  display: none;
+}
+
+.palette.collapsed .palette-content {
+  display: none;
+}
+
+.palette.collapsed .palette-toggle svg {
+  transform: rotate(180deg);
 }
 
 .palette-header h2 {
