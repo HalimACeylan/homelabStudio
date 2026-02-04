@@ -647,6 +647,90 @@
    Node Type Specific Styles
    =================================== */
 
+/* Reshape Router & Switch to look like devices */
+.canvas-node[data-node-type="router"],
+.canvas-node[data-node-type="switch"] {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+
+/* Device Body Layer */
+.canvas-node[data-node-type="router"]::before,
+.canvas-node[data-node-type="switch"]::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+  transition: all var(--transition-fast);
+  z-index: -1;
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+}
+
+.canvas-node[data-node-type="router"]::before {
+  background-image: url("/icons/router.svg");
+}
+
+.canvas-node[data-node-type="switch"]::before {
+  background-image: url("/icons/switch.svg");
+}
+
+/* Hover/Selection Effects on the Shape */
+.canvas-node[data-node-type="router"]:hover::before,
+.canvas-node[data-node-type="switch"]:hover::before {
+  filter: drop-shadow(0 0 4px var(--accent-blue)) drop-shadow(0 4px 8px rgba(0, 0, 0, 0.4));
+}
+
+.canvas-node[data-node-type="router"].selected::before,
+.canvas-node[data-node-type="switch"].selected::before {
+  filter: drop-shadow(0 0 0 2px var(--accent-blue)) drop-shadow(0 4px 12px rgba(0, 0, 0, 0.5));
+}
+
+/* Hide Standard Header Background */
+.canvas-node[data-node-type="router"] .node-header,
+.canvas-node[data-node-type="switch"] .node-header {
+  background: transparent;
+  border: none;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  padding: 0;
+  margin-top: 100px; /* Push label below the device image */
+}
+
+/* Hide Icon within the header (since the node IS the icon) */
+.canvas-node[data-node-type="router"] .node-icon,
+.canvas-node[data-node-type="switch"] .node-icon {
+  display: none;
+}
+
+/* Style the Label */
+.canvas-node[data-node-type="router"] .node-info,
+.canvas-node[data-node-type="switch"] .node-info {
+  align-items: center;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 4px 8px;
+  border-radius: 4px;
+  backdrop-filter: blur(4px);
+}
+
+.canvas-node[data-node-type="router"] .node-title,
+.canvas-node[data-node-type="switch"] .node-title {
+  color: white;
+  font-size: 0.75rem;
+}
+
+.canvas-node[data-node-type="router"] .node-subtitle,
+.canvas-node[data-node-type="switch"] .node-subtitle {
+  color: #ccc;
+  font-size: 0.65rem;
+}
+
+
 .canvas-node[data-category="hardware"] .node-icon {
   background: linear-gradient(
     135deg,
