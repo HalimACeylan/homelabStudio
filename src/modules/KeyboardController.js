@@ -58,6 +58,12 @@ export class KeyboardController {
         const id = this.app.canvas.selectedConnectionId;
         this.app.removeConnection(id);
         this.app.ui.showToast("Connection deleted", "success");
+      } else if (
+        this.app.canvas.selectedTextIds &&
+        this.app.canvas.selectedTextIds.size > 0
+      ) {
+        e.preventDefault();
+        this.app.removeSelectedTextItems();
       }
     }
 
@@ -99,6 +105,12 @@ export class KeyboardController {
       } else if (this.app.canvas.selectedNodeId) {
         e.preventDefault();
         this.app.duplicateNode(this.app.canvas.selectedNodeId);
+      } else if (
+        this.app.canvas.selectedTextIds &&
+        this.app.canvas.selectedTextIds.size > 0
+      ) {
+        e.preventDefault();
+        this.app.duplicateSelectedTextItems();
       }
     }
 
@@ -282,6 +294,13 @@ export class KeyboardController {
           toolBtn.click();
         }
       }
+    }
+
+    // Text Tool (T)
+    if (e.key.toLowerCase() === "t" && !cmdKey && !e.shiftKey && !e.altKey) {
+      e.preventDefault();
+      const textBtn = document.querySelector('.tool-btn[data-mode="text"]');
+      if (textBtn) textBtn.click();
     }
 
     // Arrow keys to nudge selected node

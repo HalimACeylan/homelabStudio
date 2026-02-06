@@ -10,6 +10,7 @@ export class DiagramManager {
     this.nodes = new Map();
     this.connections = new Map();
     this.groups = new Map();
+    this.textItems = new Map();
     this.metadata = {
       name: "Untitled Diagram",
       created: new Date().toISOString(),
@@ -236,6 +237,39 @@ export class DiagramManager {
     this.connections.set(id, connection);
     this.updateModified();
     return connection;
+  }
+
+  createTextItem(x, y, text = "New Text") {
+    const id = generateId("text");
+    const textItem = {
+      id,
+      x,
+      y,
+      text,
+      fontSize: 14,
+      color: "#ffffff",
+    };
+    this.textItems.set(id, textItem);
+    this.updateModified();
+    return textItem;
+  }
+
+  updateTextItem(id, updates) {
+    const item = this.textItems.get(id);
+    if (!item) return null;
+    Object.assign(item, updates);
+    this.updateModified();
+    return item;
+  }
+
+  removeTextItem(id) {
+    this.textItems.delete(id);
+    this.updateModified();
+  }
+
+  importTextItem(itemData) {
+    this.textItems.set(itemData.id, { ...itemData });
+    return itemData;
   }
 
   updateConnection(connectionId, updates) {

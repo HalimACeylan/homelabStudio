@@ -260,6 +260,22 @@ class HomelabStudio {
     this.canvas.clearSelection();
   }
 
+  removeSelectedTextItems() {
+    const selectedIds = Array.from(this.canvas.selectedTextIds);
+    if (selectedIds.length === 0) return;
+
+    this.history.startBatch();
+    selectedIds.forEach((id) => {
+      this.diagram.removeTextItem(id);
+      const el = document.querySelector(`[data-text-id="${id}"]`);
+      if (el) el.remove();
+    });
+    this.history.endBatch("batch");
+
+    this.canvas.clearSelection();
+    this.ui.showToast(`Removed ${selectedIds.length} text item(s)`, "success");
+  }
+
   // Update node position
   updateNodePosition(nodeId, x, y) {
     this.diagram.updateNode(nodeId, { x, y });
@@ -497,6 +513,25 @@ class HomelabStudio {
     }
   }
 
+  // Select text item
+  selectTextItem(textId, addToSelection = false) {
+    if (!addToSelection) {
+      this.canvas.clearSelection();
+    }
+
+    if (this.canvas.selectedTextIds) {
+      this.canvas.selectedTextIds.add(textId);
+    } else {
+      this.canvas.selectedTextIds = new Set([textId]);
+    }
+
+    const element = document.querySelector(`[data-text-id="${textId}"]`);
+    if (element) {
+      element.classList.add("selected");
+    }
+    // No properties panel for text yet, or maybe simple one later
+  }
+
   // Duplicate node
   duplicateNode(nodeId) {
     const node = this.diagram.nodes.get(nodeId);
@@ -548,6 +583,33 @@ class HomelabStudio {
     this.canvas.clearSelection();
     newIds.forEach((id) => this.selectNode(id, true));
     this.ui.showToast(`${newIds.length} node(s) duplicated`, "success");
+  }
+
+  duplicateSelectedTextItems() {
+    const selectedIds = Array.from(this.canvas.selectedTextIds);
+    if (selectedIds.length === 0) return;
+
+    this.history.startBatch();
+    const newIds = [];
+
+    selectedIds.forEach((id) => {
+      const item = this.diagram.textItems.get(id);
+      if (item) {
+        const newItem = this.diagram.createTextItem(
+          item.x + 20,
+          item.y + 20,
+          item.text
+        );
+        const el = this.canvas.createTextElement(newItem);
+        // Copy style props if we ever support them
+        newIds.push(newItem.id);
+      }
+    });
+    this.history.endBatch("batch");
+
+    this.canvas.clearSelection();
+    newIds.forEach((id) => this.selectTextItem(id, true));
+    this.ui.showToast(`${newIds.length} text item(s) duplicated`, "success");
   }
 
   // Clear all
@@ -612,6 +674,14 @@ class HomelabStudio {
       data.groups.forEach((group) => {
         this.canvas.renderGroup(this.diagram.groups.get(group.id));
       });
+    }
+
+    // Render text items
+    if (data.textItems) {
+      data.textItems.forEach((item) => {
+        this.diagram.importTextItem(item);
+      });
+      this.canvas.renderTextItems();
     }
 
     this.updateNodeCount();

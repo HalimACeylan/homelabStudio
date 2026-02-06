@@ -1,0 +1,6 @@
+/* Text Item Selection Highlight */
+.canvas-text.selected {
+  outline: 2px solid var(--accent-primary);
+  /* Optional: background highlight */
+  background: rgba(var(--accent-primary-rgb), 0.1);
+}

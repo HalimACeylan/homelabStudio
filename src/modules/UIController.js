@@ -78,18 +78,26 @@ export class UIController {
         // Update canvas cursor and wrapper classes
         const wrapper = document.getElementById("canvas-wrapper");
         if (mode === "connect") {
-          wrapper.classList.remove("mode-select", "mode-marquee");
+          wrapper.classList.remove("mode-select", "mode-marquee", "mode-text");
           wrapper.classList.add("mode-connect");
           this.showToast(`Selected ${btn.getAttribute("title")} Tool`, "info");
         } else if (mode === "marquee") {
-          wrapper.classList.remove("mode-connect", "mode-select");
+          wrapper.classList.remove("mode-connect", "mode-select", "mode-text");
           wrapper.classList.add("mode-marquee");
           this.showToast(
             "Select Tool: Drag to box-select multiple nodes",
             "info"
           );
+        } else if (mode === "text") {
+          wrapper.classList.remove(
+            "mode-connect",
+            "mode-marquee",
+            "mode-select"
+          );
+          wrapper.classList.add("mode-text");
+          this.showToast("Text Tool: Click on canvas to add text", "info");
         } else {
-          wrapper.classList.remove("mode-connect", "mode-marquee");
+          wrapper.classList.remove("mode-connect", "mode-marquee", "mode-text");
           wrapper.classList.add("mode-select");
           this.showToast(
             "Pan/Drag Tool: Interact with individual nodes",

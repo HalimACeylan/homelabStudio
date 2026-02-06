@@ -16,6 +16,7 @@ export class CanvasController {
     this.nodesLayer = document.getElementById("nodes-layer");
     this.groupsLayer = document.getElementById("groups-layer");
     this.connectionsLayer = document.getElementById("connections-layer");
+    this.textLayer = document.getElementById("text-layer");
     this.overlay = document.getElementById("canvas-overlay");
 
     this.scale = 1;
@@ -31,6 +32,7 @@ export class CanvasController {
 
     this.selectedNodeIds = new Set();
     this.selectedConnectionIds = new Set();
+    this.selectedTextIds = new Set();
     this.selectedNodeId = null;
     this.selectedConnectionId = null;
     this.draggedNode = null;
@@ -79,6 +81,11 @@ export class CanvasController {
     // Double click to edit
     this.nodesLayer.addEventListener("dblclick", (e) =>
       this.handleDoubleClick(e)
+    );
+
+    // Double click text to edit
+    this.textLayer.addEventListener("dblclick", (e) =>
+      this.handleTextDoubleClick(e)
     );
   }
 
@@ -203,10 +210,31 @@ export class CanvasController {
       return;
     }
 
+    // Text Tool Mode
+    if (this.app.editMode === "text") {
+      if (
+        !nodeElement &&
+        !portElement &&
+        !connectionElement &&
+        !groupLabelElement
+      ) {
+        const canvasPos = this.screenToCanvas(e.clientX, e.clientY);
+        const textItem = this.app.diagram.createTextItem(
+          canvasPos.x,
+          canvasPos.y
+        );
+        this.createTextElement(textItem);
+        this.app.ui.showToast("Text added", "success");
+        return;
+      }
+    }
+
     // Default: Pan on middle mouse or Space+Drag or just empty area drag (standard behavior)
     if (
       e.button === 1 ||
-      (e.button === 0 && !e.target.closest(".canvas-node"))
+      (e.button === 0 &&
+        !e.target.closest(".canvas-node") &&
+        !e.target.closest(".canvas-text"))
     ) {
       if (!e.ctrlKey && !e.metaKey && this.app.editMode !== "marquee") {
         // Assuming simple pan for select mode
@@ -363,6 +391,26 @@ export class CanvasController {
   updateDragging(e) {
     if (!this.draggedNode) return;
 
+    // Handle Text Items
+    if (this.draggedNode.classList.contains("canvas-text")) {
+      const textId = this.draggedNode.dataset.textId;
+      const canvasPos = this.screenToCanvas(e.clientX, e.clientY);
+      const offset = this.dragOffsets.get(textId);
+
+      let x = canvasPos.x - (offset ? offset.x : 0);
+      let y = canvasPos.y - (offset ? offset.y : 0);
+
+      if (this.snapEnabled) {
+        x = snapToGrid(x, this.gridSize);
+        y = snapToGrid(y, this.gridSize);
+      }
+
+      this.draggedNode.style.left = `${x}px`;
+      this.draggedNode.style.top = `${y}px`;
+      this.app.diagram.updateTextItem(textId, { x, y });
+      return;
+    }
+
     const nodeId = this.draggedNode.dataset.nodeId;
     const canvasPos = this.screenToCanvas(e.clientX, e.clientY);
 
@@ -409,6 +457,14 @@ export class CanvasController {
 
   stopDragging() {
     if (this.isDragging && this.draggedNode) {
+      // Handle Text Items
+      if (this.draggedNode.classList.contains("canvas-text")) {
+        // TODO: Add history for text move
+        this.isDragging = false;
+        this.draggedNode = null;
+        return;
+      }
+
       const nodeId = this.draggedNode.dataset.nodeId;
       const node = this.app.diagram.nodes.get(nodeId);
 
@@ -570,6 +626,13 @@ export class CanvasController {
         if (element) element.classList.remove("selected");
       });
       this.selectedConnectionIds.clear();
+    }
+    if (this.selectedTextIds) {
+      this.selectedTextIds.forEach((id) => {
+        const element = document.querySelector(`[data-text-id="${id}"]`);
+        if (element) element.classList.remove("selected");
+      });
+      this.selectedTextIds.clear();
     }
     this.app.properties.clear();
   }
@@ -1139,5 +1202,154 @@ export class CanvasController {
     if (this.app.ui && this.app.ui.showToast) {
       this.app.ui.showToast(`Pasted ${newNodeIds.length} node(s)`, "success");
     }
+  }
+
+  // Text Items
+  createTextElement(textItem) {
+    const el = document.createElement("div");
+    el.classList.add("canvas-text");
+    el.dataset.textId = textItem.id;
+    el.style.left = `${textItem.x}px`;
+    el.style.top = `${textItem.y}px`;
+
+    // Content
+    const content = document.createElement("div");
+    content.classList.add("text-content");
+    content.textContent = textItem.text;
+    content.style.fontSize = `${textItem.fontSize}px`;
+    content.style.color = textItem.color;
+
+    el.appendChild(content);
+
+    // Dragging logic for text
+    el.addEventListener("mousedown", (e) => {
+      if (this.app.editMode === "text") return;
+      e.stopPropagation();
+      this.startDraggingText(el, e);
+    });
+
+    this.textLayer.appendChild(el);
+    return el;
+  }
+
+  updateTextElement(id) {
+    const item = this.app.diagram.textItems.get(id);
+    if (!item) return;
+
+    const el = this.textLayer.querySelector(`[data-text-id="${id}"]`);
+    if (el) {
+      el.style.left = `${item.x}px`;
+      el.style.top = `${item.y}px`;
+      const content = el.querySelector(".text-content");
+      if (content) {
+        content.textContent = item.text;
+        content.style.fontSize = `${item.fontSize}px`;
+        content.style.color = item.color;
+      }
+    }
+  }
+
+  handleTextDoubleClick(e) {
+    const textEl = e.target.closest(".canvas-text");
+    if (!textEl) return;
+
+    const textId = textEl.dataset.textId;
+    const item = this.app.diagram.textItems.get(textId);
+
+    // Replace with input
+    textEl.classList.add("editing");
+
+    const input = document.createElement("textarea");
+    input.value = item.text;
+    input.style.fontSize = `${item.fontSize}px`;
+    input.style.color = item.color;
+
+    // Clear content and add input
+    const content = textEl.querySelector(".text-content");
+    content.style.display = "none";
+    textEl.appendChild(input);
+
+    input.focus();
+    input.select();
+
+    // Handle blur or enter
+    const save = () => {
+      const newText = input.value;
+      if (newText.trim() === "") {
+        this.app.diagram.removeTextItem(textId);
+        textEl.remove();
+      } else {
+        this.app.diagram.updateTextItem(textId, { text: newText });
+        content.textContent = newText;
+        content.style.display = "block";
+        input.remove();
+        textEl.classList.remove("editing");
+      }
+    };
+
+    input.addEventListener("blur", save);
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        input.blur();
+      }
+      if (e.key === "Escape") {
+        content.style.display = "block";
+        input.remove();
+        textEl.classList.remove("editing");
+      }
+    });
+  }
+
+  startDraggingText(element, e) {
+    this.isDragging = true;
+    this.draggedNode = element;
+
+    const textId = element.dataset.textId;
+    const canvasPos = this.screenToCanvas(e.clientX, e.clientY);
+    const item = this.app.diagram.textItems.get(textId);
+
+    // Handle Selection
+    const isMultiSelect = e.ctrlKey || e.metaKey || e.shiftKey;
+
+    if (isMultiSelect) {
+      if (this.selectedTextIds.has(textId)) {
+        // Usually keep selected if already selected and dragging
+      } else {
+        this.app.selectTextItem(textId, true);
+      }
+    } else {
+      if (!this.selectedTextIds.has(textId)) {
+        this.app.selectTextItem(textId, false); // Single select, clear others
+      }
+    }
+
+    this.dragOffsets = new Map(); // Clear previous
+
+    // Prepare offsets for all selected text items
+    if (this.selectedTextIds.has(textId)) {
+      this.selectedTextIds.forEach((id) => {
+        const tItem = this.app.diagram.textItems.get(id);
+        if (tItem) {
+          this.dragOffsets.set(id, {
+            x: canvasPos.x - tItem.x,
+            y: canvasPos.y - tItem.y,
+          });
+        }
+      });
+    } else {
+      // Fallback
+      this.dragOffsets.set(textId, {
+        x: canvasPos.x - item.x,
+        y: canvasPos.y - item.y,
+      });
+    }
+  }
+
+  renderTextItems() {
+    this.textLayer.innerHTML = "";
+    this.app.diagram.textItems.forEach((item) => {
+      this.createTextElement(item);
+    });
   }
 }
