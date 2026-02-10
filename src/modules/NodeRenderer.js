@@ -157,9 +157,9 @@ export class NodeRenderer {
             ? `
           <div class="node-resource-load">
              <div class="load-bar-group">
-               <div class="load-label"><span>CPU (${resourceLoad.cpu.max.toFixed(
+               <div class="load-label"><span>CPU (<span class="spec-value" data-spec-type="cpu">${resourceLoad.cpu.max.toFixed(
                  1
-               )} GHz)</span> <span>${resourceLoad.cpu.percent.toFixed(
+               )} GHz</span>)</span> <span>${resourceLoad.cpu.percent.toFixed(
                 0
               )}%</span></div>
                <div class="load-bar"><div class="load-fill cpu" data-load-level="${
@@ -171,11 +171,11 @@ export class NodeRenderer {
                }" style="width: ${resourceLoad.cpu.percent}%"></div></div>
              </div>
              <div class="load-bar-group">
-               <div class="load-label"><span>RAM (${
+               <div class="load-label"><span>RAM (<span class="spec-value" data-spec-type="ram">${
                  resourceLoad.ram.max >= 1024
                    ? (resourceLoad.ram.max / 1024).toFixed(0) + " GB"
                    : resourceLoad.ram.max + " MB"
-               })</span> <span>${resourceLoad.ram.percent.toFixed(
+               }</span>)</span> <span>${resourceLoad.ram.percent.toFixed(
                 0
               )}%</span></div>
                <div class="load-bar"><div class="load-fill ram" data-load-level="${
@@ -187,9 +187,9 @@ export class NodeRenderer {
                }" style="width: ${resourceLoad.ram.percent}%"></div></div>
              </div>
              <div class="load-bar-group">
-               <div class="load-label"><span>Storage (${
+               <div class="load-label"><span>Storage (<span class="spec-value" data-spec-type="storage">${
                  resourceLoad.storage.max
-               } GB)</span> <span>${resourceLoad.storage.percent.toFixed(
+               } GB</span>)</span> <span>${resourceLoad.storage.percent.toFixed(
                 0
               )}%</span></div>
                <div class="load-bar"><div class="load-fill storage" data-load-level="${
@@ -220,7 +220,7 @@ export class NodeRenderer {
           }
           ${
             node.properties.description
-              ? `<span class="spec-tag">${node.properties.description}</span>`
+              ? `<span class="spec-tag node-spec-tag">${node.properties.description}</span>`
               : ""
           }
         </div>
@@ -356,13 +356,21 @@ export class NodeRenderer {
           ".load-bar-group:nth-child(1)"
         );
         if (cpuGroup) {
-          const labels = cpuGroup.querySelectorAll(".load-label span");
-          if (labels[0])
-            labels[0].textContent = `CPU (${resourceLoad.cpu.max.toFixed(
-              1
-            )} GHz)`;
-          if (labels[1])
-            labels[1].textContent = `${resourceLoad.cpu.percent.toFixed(0)}%`;
+          const label = cpuGroup.querySelector(".load-label");
+          if (label) {
+            const valueText = `${resourceLoad.cpu.max.toFixed(1)} GHz`;
+            const percentText = `${resourceLoad.cpu.percent.toFixed(0)}%`;
+            const specValue = label.querySelector(
+              '.spec-value[data-spec-type="cpu"]'
+            );
+            if (!specValue) {
+              label.innerHTML = `<span>CPU (<span class="spec-value" data-spec-type="cpu">${valueText}</span>)</span><span>${percentText}</span>`;
+            } else {
+              specValue.textContent = valueText;
+              const percentEl = label.children[1];
+              if (percentEl) percentEl.textContent = percentText;
+            }
+          }
 
           const fill = cpuGroup.querySelector(".load-fill");
           if (fill) {
@@ -381,15 +389,24 @@ export class NodeRenderer {
           ".load-bar-group:nth-child(2)"
         );
         if (ramGroup) {
-          const labels = ramGroup.querySelectorAll(".load-label span");
-          if (labels[0])
-            labels[0].textContent = `RAM (${
+          const label = ramGroup.querySelector(".load-label");
+          if (label) {
+            const valueText =
               resourceLoad.ram.max >= 1024
                 ? (resourceLoad.ram.max / 1024).toFixed(0) + " GB"
-                : resourceLoad.ram.max + " MB"
-            })`;
-          if (labels[1])
-            labels[1].textContent = `${resourceLoad.ram.percent.toFixed(0)}%`;
+                : resourceLoad.ram.max + " MB";
+            const percentText = `${resourceLoad.ram.percent.toFixed(0)}%`;
+            const specValue = label.querySelector(
+              '.spec-value[data-spec-type="ram"]'
+            );
+            if (!specValue) {
+              label.innerHTML = `<span>RAM (<span class="spec-value" data-spec-type="ram">${valueText}</span>)</span><span>${percentText}</span>`;
+            } else {
+              specValue.textContent = valueText;
+              const percentEl = label.children[1];
+              if (percentEl) percentEl.textContent = percentText;
+            }
+          }
 
           const fill = ramGroup.querySelector(".load-fill");
           if (fill) {
@@ -408,13 +425,21 @@ export class NodeRenderer {
           ".load-bar-group:nth-child(3)"
         );
         if (storageGroup) {
-          const labels = storageGroup.querySelectorAll(".load-label span");
-          if (labels[0])
-            labels[0].textContent = `Storage (${resourceLoad.storage.max} GB)`;
-          if (labels[1])
-            labels[1].textContent = `${resourceLoad.storage.percent.toFixed(
-              0
-            )}%`;
+          const label = storageGroup.querySelector(".load-label");
+          if (label) {
+            const valueText = `${resourceLoad.storage.max} GB`;
+            const percentText = `${resourceLoad.storage.percent.toFixed(0)}%`;
+            const specValue = label.querySelector(
+              '.spec-value[data-spec-type="storage"]'
+            );
+            if (!specValue) {
+              label.innerHTML = `<span>Storage (<span class="spec-value" data-spec-type="storage">${valueText}</span>)</span><span>${percentText}</span>`;
+            } else {
+              specValue.textContent = valueText;
+              const percentEl = label.children[1];
+              if (percentEl) percentEl.textContent = percentText;
+            }
+          }
 
           const fill = storageGroup.querySelector(".load-fill");
           if (fill) {
@@ -457,7 +482,7 @@ export class NodeRenderer {
       }
 
       if (node.properties.description) {
-        specsHTML += `<span class="spec-tag">${node.properties.description}</span>`;
+        specsHTML += `<span class="spec-tag node-spec-tag">${node.properties.description}</span>`;
       }
 
       specsEl.innerHTML = specsHTML;

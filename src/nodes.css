@@ -1241,3 +1241,29 @@
 .canvas-node.resizing {
   transition: none !important;
 }
+
+/* Inline Editing */
+.node-title,
+.spec-value,
+.node-spec-tag {
+  cursor: text !important;
+  position: relative;
+  transition: all 0.15s ease;
+  border-radius: 2px;
+  padding: 1px 2px;
+}
+
+.node-title:hover,
+.spec-value:hover,
+.node-spec-tag:hover {
+  background: rgba(255, 255, 255, 0.05);
+  outline: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.inline-edit-input {
+  outline: none;
+}
+
+.inline-edit-input:focus {
+  box-shadow: 0 0 0 2px var(--primary-color);
+}

@@ -100,6 +100,12 @@ export class CanvasController {
     const connectionElement = e.target.closest(".connection");
     const groupLabelElement = e.target.closest(".group-label");
     const resizeHandle = e.target.closest(".node-resize-handle");
+    const inlineEditInput = e.target.closest(".inline-edit-input");
+
+    if (inlineEditInput) {
+      e.stopPropagation();
+      return;
+    }
 
     // Handle resize handle click (MUST be first)
     if (resizeHandle && nodeElement) {
@@ -107,6 +113,30 @@ export class CanvasController {
       e.preventDefault();
       this.startResizing(nodeElement, e);
       return;
+    }
+
+    const inlineEditTarget = e.target.closest(
+      ".node-title, .spec-value, .node-spec-tag"
+    );
+    if (inlineEditTarget && e.button === 0) {
+      e.stopPropagation();
+      e.preventDefault();
+
+      if (inlineEditTarget.classList.contains("node-title")) {
+        this.startInlineEdit(inlineEditTarget, "name");
+        return;
+      }
+
+      if (inlineEditTarget.classList.contains("spec-value")) {
+        const specType = inlineEditTarget.dataset.specType;
+        this.startInlineEdit(inlineEditTarget, "resource", specType);
+        return;
+      }
+
+      if (inlineEditTarget.classList.contains("node-spec-tag")) {
+        this.startInlineEdit(inlineEditTarget, "tag");
+        return;
+      }
     }
 
     // Handle Group Label Click (only the label, not the entire box)
@@ -534,6 +564,31 @@ export class CanvasController {
   }
 
   handleDoubleClick(e) {
+    // Check if double-clicking on editable elements
+    const nodeTitle = e.target.closest(".node-title");
+    const specValue = e.target.closest(".spec-value");
+    const specTag = e.target.closest(".node-spec-tag");
+
+    if (nodeTitle) {
+      e.stopPropagation();
+      this.startInlineEdit(nodeTitle, "name");
+      return;
+    }
+
+    if (specValue) {
+      e.stopPropagation();
+      const specType = specValue.dataset.specType; // cpu, ram, or storage
+      this.startInlineEdit(specValue, "resource", specType);
+      return;
+    }
+
+    if (specTag) {
+      e.stopPropagation();
+      this.startInlineEdit(specTag, "tag");
+      return;
+    }
+
+    // Default behavior: open node editor
     const nodeElement = e.target.closest(".canvas-node");
     if (nodeElement) {
       const nodeId = nodeElement.dataset.nodeId;
@@ -542,6 +597,111 @@ export class CanvasController {
         this.app.ui.showNodeEditor(node);
       }
     }
+  }
+
+  startInlineEdit(element, type, subtype = null) {
+    const nodeElement = element.closest(".canvas-node");
+    if (!nodeElement) return;
+
+    const nodeId = nodeElement.dataset.nodeId;
+    const node = this.app.diagram.nodes.get(nodeId);
+    if (!node) return;
+
+    // Get current value
+    const currentValue = element.textContent.trim();
+    const isResource = type === "resource";
+    const unitForResource = (() => {
+      if (!isResource) return "";
+      if (subtype === "cpu") return " GHz";
+      if (subtype === "ram") return " GB";
+      if (subtype === "storage") return " GB";
+      return "";
+    })();
+    const numericValue = isResource
+      ? (currentValue.match(/[0-9]*\.?[0-9]+/) || [""])[0]
+      : currentValue;
+
+    // Create input
+    const input = document.createElement("input");
+    input.type = "text";
+    input.value = numericValue;
+    input.className = "inline-edit-input";
+    input.style.cssText = `
+      width: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      border: 1px solid var(--primary-color);
+      color: white;
+      padding: 2px 4px;
+      font-size: inherit;
+      font-family: inherit;
+      border-radius: 3px;
+    `;
+    if (type === "resource") {
+      input.style.width = "44px";
+      input.style.minWidth = "36px";
+      input.style.maxWidth = "60px";
+      input.style.padding = "1px 3px";
+      input.style.textAlign = "right";
+    }
+
+    // Replace element content with input
+    element.textContent = "";
+    element.appendChild(input);
+    input.focus();
+    input.select();
+
+    // Save on blur or Enter
+    const saveEdit = () => {
+      const newValue = input.value.trim();
+      const hasValue = newValue.length > 0;
+      if (hasValue && newValue !== numericValue) {
+        switch (type) {
+          case "name":
+            node.properties.name = newValue;
+            this.app.diagram.updateModified();
+            this.app.nodeRenderer.updateNodeElement(nodeId, node);
+            break;
+
+          case "resource":
+            if (subtype === "cpu") {
+              const value = parseFloat(newValue);
+              if (!Number.isFinite(value)) break;
+              node.properties.cpu = `${value.toFixed(1)}${unitForResource}`;
+            } else if (subtype === "ram") {
+              const value = parseInt(newValue, 10);
+              if (!Number.isFinite(value)) break;
+              node.properties.ram = `${value}${unitForResource}`;
+            } else if (subtype === "storage") {
+              const value = parseInt(newValue, 10);
+              if (!Number.isFinite(value)) break;
+              node.properties.storage = `${value}${unitForResource}`;
+            }
+            this.app.diagram.updateModified();
+            this.app.nodeRenderer.updateNodeElement(nodeId, node);
+            break;
+
+          case "tag":
+            node.properties.description = newValue;
+            this.app.diagram.updateModified();
+            this.app.nodeRenderer.updateNodeElement(nodeId, node);
+            break;
+        }
+      } else {
+        // Restore original value
+        element.textContent = currentValue;
+      }
+    };
+
+    input.addEventListener("blur", saveEdit);
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        input.blur();
+      } else if (e.key === "Escape") {
+        input.value = currentValue;
+        input.blur();
+      }
+    });
   }
 
   // Panning
@@ -1149,6 +1309,14 @@ export class CanvasController {
   }
 
   handleDoubleClick(e) {
+    if (
+      e.target.closest(
+        ".node-title, .spec-value, .node-spec-tag, .inline-edit-input"
+      )
+    ) {
+      return;
+    }
+
     const nodeElement = e.target.closest(".canvas-node");
     if (nodeElement) {
       const nodeId = nodeElement.dataset.nodeId;
