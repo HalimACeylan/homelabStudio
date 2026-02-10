@@ -64,11 +64,14 @@ export class PropertiesPanel {
         <div class="property-resource-group">
           <div class="resource-row">
             <div class="resource-info">
-              <span class="resource-label">CPU (${resourceLoad.cpu.max.toFixed(
-                1
-              )} GHz)</span>
+            <div style="display: flex; align-items: center;">
+              <input type="number" step="0.1" min="0.1" max="10.0" 
+                         class="spec-numeric-input" id="prop-cpu-num" 
+                         value="${parseFloat(node.properties.cpu) || 1.0}">
+                  <span class="spec-unit">GHz</span>
+                  </div>
               <span class="resource-value">${resourceLoad.cpu.percent.toFixed(
-                0
+                0,
               )}%</span>
             </div>
             <div class="resource-bar-bg">
@@ -76,16 +79,27 @@ export class PropertiesPanel {
                 resourceLoad.cpu.percent
               }%"></div>
             </div>
+            <div class="spec-input-container">
+              <div class="spec-header">
+                <label class="property-label">CPU Capacity</label>
+                <div style="display: flex; align-items: center;">
+                </div>
+              </div>
+              <input type="range" step="0.1" min="0.1" max="10.0" 
+                     class="spec-slider cpu" id="prop-cpu-range" 
+                     value="${parseFloat(node.properties.cpu) || 1.0}">
+            </div>
           </div>
           <div class="resource-row">
             <div class="resource-info">
-              <span class="resource-label">RAM (${
-                resourceLoad.ram.max >= 1024
-                  ? (resourceLoad.ram.max / 1024).toFixed(0) + " GB"
-                  : resourceLoad.ram.max + " MB"
-              })</span>
+              <div style="display: flex; align-items: center;">
+                  <input type="number" step="1" min="1" max="512" 
+                         class="spec-numeric-input" id="prop-ram-num" 
+                         value="${parseInt(node.properties.ram) || 4}">
+                  <span class="spec-unit">GB</span>
+                </div>
               <span class="resource-value">${resourceLoad.ram.percent.toFixed(
-                0
+                0,
               )}%</span>
             </div>
             <div class="resource-bar-bg">
@@ -93,20 +107,40 @@ export class PropertiesPanel {
                 resourceLoad.ram.percent
               }%"></div>
             </div>
+            <div class="spec-input-container">
+              <div class="spec-header">
+                <label class="property-label">RAM Capacity</label>
+              </div>
+              <input type="range" step="1" min="1" max="512" 
+                     class="spec-slider ram" id="prop-ram-range" 
+                     value="${parseInt(node.properties.ram) || 4}">
+            </div>
           </div>
           <div class="resource-row">
             <div class="resource-info">
-              <span class="resource-label">Storage (${
-                resourceLoad.storage.max
-              } GB)</span>
+                <div style="display: flex; align-items: center;">
+                  <input type="number" step="1" min="1" max="8192" 
+                         class="spec-numeric-input" id="prop-storage-num" 
+                         value="${parseInt(node.properties.storage) || 128}">
+                  <span class="spec-unit">GB</span>
+                </div>
               <span class="resource-value">${resourceLoad.storage.percent.toFixed(
-                0
+                0,
               )}%</span>
             </div>
             <div class="resource-bar-bg">
               <div class="resource-bar-fill storage" style="width: ${
                 resourceLoad.storage.percent
               }%"></div>
+            </div>
+            <div class="spec-input-container">
+              <div class="spec-header">
+                <label class="property-label">Storage Capacity</label>
+                
+              </div>
+              <input type="range" step="1" min="1" max="8192" 
+                     class="spec-slider storage" id="prop-storage-range" 
+                     value="${parseInt(node.properties.storage) || 128}">
             </div>
           </div>
         </div>
@@ -152,54 +186,6 @@ export class PropertiesPanel {
                    node.properties.os || ""
                  }" placeholder="e.g., Ubuntu 22.04">
         </div>
-        
-        <!-- CPU Spec -->
-        <div class="spec-input-container">
-          <div class="spec-header">
-            <label class="property-label">CPU Capacity</label>
-            <div style="display: flex; align-items: center;">
-              <input type="number" step="0.1" min="0.1" max="10.0" 
-                     class="spec-numeric-input" id="prop-cpu-num" 
-                     value="${parseFloat(node.properties.cpu) || 1.0}">
-              <span class="spec-unit">GHz</span>
-            </div>
-          </div>
-          <input type="range" step="0.1" min="0.1" max="10.0" 
-                 class="spec-slider cpu" id="prop-cpu-range" 
-                 value="${parseFloat(node.properties.cpu) || 1.0}">
-        </div>
-
-        <!-- RAM Spec -->
-        <div class="spec-input-container">
-          <div class="spec-header">
-            <label class="property-label">RAM Capacity</label>
-            <div style="display: flex; align-items: center;">
-              <input type="number" step="1" min="1" max="512" 
-                     class="spec-numeric-input" id="prop-ram-num" 
-                     value="${parseInt(node.properties.ram) || 4}">
-              <span class="spec-unit">GB</span>
-            </div>
-          </div>
-          <input type="range" step="1" min="1" max="512" 
-                 class="spec-slider ram" id="prop-ram-range" 
-                 value="${parseInt(node.properties.ram) || 4}">
-        </div>
-
-        <!-- Storage Spec -->
-        <div class="spec-input-container">
-          <div class="spec-header">
-            <label class="property-label">Storage Capacity</label>
-            <div style="display: flex; align-items: center;">
-              <input type="number" step="1" min="1" max="8192" 
-                     class="spec-numeric-input" id="prop-storage-num" 
-                     value="${parseInt(node.properties.storage) || 128}">
-              <span class="spec-unit">GB</span>
-            </div>
-          </div>
-          <input type="range" step="1" min="1" max="8192" 
-                 class="spec-slider storage" id="prop-storage-range" 
-                 value="${parseInt(node.properties.storage) || 128}">
-        </div>
       </div>
       `
           : ""
@@ -211,13 +197,13 @@ export class PropertiesPanel {
           <div style="flex: 1;">
             <label class="property-label" for="prop-x">X</label>
             <input type="number" class="property-input" id="prop-x" value="${Math.round(
-              node.x
+              node.x,
             )}">
           </div>
           <div style="flex: 1;">
             <label class="property-label" for="prop-y">Y</label>
             <input type="number" class="property-input" id="prop-y" value="${Math.round(
-              node.y
+              node.y,
             )}">
           </div>
         </div>
@@ -383,12 +369,12 @@ export class PropertiesPanel {
     const resourceLoad = this.app.nodeRenderer.calculateResources(node);
     if (resourceLoad) {
       const resourceGroup = this.content.querySelector(
-        ".property-resource-group"
+        ".property-resource-group",
       );
       if (resourceGroup) {
         // CPU
         const cpuRow = resourceGroup.querySelector(
-          ".resource-row:nth-child(1)"
+          ".resource-row:nth-child(1)",
         );
         if (cpuRow) {
           const label = cpuRow.querySelector(".resource-label");
@@ -403,7 +389,7 @@ export class PropertiesPanel {
 
         // RAM
         const ramRow = resourceGroup.querySelector(
-          ".resource-row:nth-child(2)"
+          ".resource-row:nth-child(2)",
         );
         if (ramRow) {
           const label = ramRow.querySelector(".resource-label");
@@ -422,7 +408,7 @@ export class PropertiesPanel {
 
         // Storage
         const storageRow = resourceGroup.querySelector(
-          ".resource-row:nth-child(3)"
+          ".resource-row:nth-child(3)",
         );
         if (storageRow) {
           const label = storageRow.querySelector(".resource-label");
@@ -483,9 +469,9 @@ export class PropertiesPanel {
               .map(
                 ([type, config]) => `
               <option value="${type}" ${
-                  connection.type === type ? "selected" : ""
-                }>${config.name}</option>
-            `
+                connection.type === type ? "selected" : ""
+              }>${config.name}</option>
+            `,
               )
               .join("")}
           </select>
@@ -573,7 +559,7 @@ export class PropertiesPanel {
         this.updateConnectionProperty(
           connectionId,
           "bandwidth",
-          numericVal.toString()
+          numericVal.toString(),
         );
         this.updateConnectionProperty(connectionId, "bandwidthUnit", unit);
         this.app.connections.updateConnectionLabel(connectionId);
@@ -605,17 +591,17 @@ export class PropertiesPanel {
         this.updateConnectionProperty(
           connectionId,
           "bandwidth",
-          newVal.toString()
+          newVal.toString(),
         );
         this.updateConnectionProperty(connectionId, "bandwidthUnit", unit);
         this.app.connections.updateConnectionLabel(connectionId);
       };
 
       numInput.addEventListener("input", (e) =>
-        updateBandwidth(e.target.value)
+        updateBandwidth(e.target.value),
       );
       rangeInput.addEventListener("input", (e) =>
-        updateBandwidth(e.target.value)
+        updateBandwidth(e.target.value),
       );
       unitSelect.addEventListener("change", updateUnit);
     };

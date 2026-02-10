@@ -1649,7 +1649,7 @@ textarea.property-input {
 }
 
 .spec-numeric-input {
-  width: 60px;
+  width: 40px;
   background: var(--bg-tertiary);
   border: 1px solid var(--border-secondary);
   border-radius: var(--radius-sm);
