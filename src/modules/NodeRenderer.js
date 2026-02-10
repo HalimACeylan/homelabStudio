@@ -219,17 +219,7 @@ export class NodeRenderer {
               : ""
           }
           ${
-            isHardware && node.properties.ram
-              ? `<span class="spec-tag">${node.properties.ram} GB RAM</span>`
-              : ""
-          }
-          ${
-            isHardware && node.properties.storage
-              ? `<span class="spec-tag">${node.properties.storage} GB Storage</span>`
-              : ""
-          }
-          ${
-            !isHardware && node.properties.description
+            node.properties.description
               ? `<span class="spec-tag">${node.properties.description}</span>`
               : ""
           }
@@ -454,11 +444,9 @@ export class NodeRenderer {
                           ${node.properties.os}
                         </span>`;
         }
-        if (node.properties.ram)
-          specsHTML += `<span class="spec-tag">${node.properties.ram} GB RAM</span>`;
-        if (node.properties.storage)
-          specsHTML += `<span class="spec-tag">${node.properties.storage} GB Storage</span>`;
-      } else if (node.properties.description) {
+      }
+
+      if (node.properties.description) {
         specsHTML += `<span class="spec-tag">${node.properties.description}</span>`;
       }
 

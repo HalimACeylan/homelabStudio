@@ -48,6 +48,8 @@ export class PropertiesPanel {
         <div class="property-row">
           <label class="property-label" for="prop-description">Description</label>
           <textarea class="property-input" id="prop-description" 
+                    rows="3"
+                    maxlength="2000"
                     placeholder="Add a description...">${
                       node.properties.description || ""
                     }</textarea>
