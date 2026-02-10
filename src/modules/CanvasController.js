@@ -160,6 +160,15 @@ export class CanvasController {
 
     // Handle node selection and interaction
     if (nodeElement) {
+      // Ignore if clicking on internal draggable items (apps or OS environments)
+      const appItem = e.target.closest(".node-app-item");
+      const osEnvHeader = e.target.closest(".os-env-header");
+
+      if (appItem || osEnvHeader) {
+        // Let InternalDragDrop handle this
+        return;
+      }
+
       e.stopPropagation();
       const nodeId = nodeElement.dataset.nodeId;
 

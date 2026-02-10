@@ -1175,3 +1175,35 @@
   }
 }
 
+
+
+/* Internal Drag and Drop */
+.node-app-item.dragging,
+.os-env-group.dragging {
+  opacity: 0.5;
+  cursor: grabbing;
+}
+
+.drop-target-active {
+  background: rgba(88, 166, 255, 0.1);
+  border: 2px dashed var(--accent-blue);
+  border-radius: var(--radius-md);
+}
+
+.node-app-item[draggable="true"] {
+  cursor: grab;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.node-app-item[draggable="true"]:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.os-env-header[draggable="true"] {
+  cursor: grab;
+}
+
+.os-env-header[draggable="true"]:hover {
+  background: rgba(88, 166, 255, 0.05);
+}

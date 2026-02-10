@@ -515,6 +515,12 @@ export class PaletteController {
     const { type, category } = data;
     if (!type) return;
 
+    // Ignore internal drag operations (from InternalDragDrop)
+    if (data.nodeId || data.osEnvId || data.appType) {
+      // This is an internal drag operation, not a palette drag
+      return;
+    }
+
     // Check if dropping application or OS onto hardware node
     if (category === "application" || category === "os") {
       const nodeElement = e.target.closest(".canvas-node.hardware-node");
@@ -593,10 +599,69 @@ export class PaletteController {
         nodeElement.classList.remove("drop-potential");
         return;
       } else {
-        this.app.ui.showToast(
-          "Items must be dropped onto hardware nodes",
-          "warning"
-        );
+        // No hardware node found - auto-create one with the app/OS
+        const canvasPos = this.app.canvas.screenToCanvas(e.clientX, e.clientY);
+        const x = Math.round(canvasPos.x / 20) * 20;
+        const y = Math.round(canvasPos.y / 20) * 20;
+
+        // Create a server hardware node
+        const hardwareNode = this.app.addNode("server", x, y);
+
+        if (category === "application") {
+          // Create Ubuntu OS environment first
+          const ubuntuSuccess = this.app.diagram.addOSEnvironment(
+            hardwareNode.id,
+            "Ubuntu",
+            "ubuntu",
+            null
+          );
+
+          if (ubuntuSuccess) {
+            // Find the Ubuntu environment we just created
+            const node = this.app.diagram.nodes.get(hardwareNode.id);
+            const ubuntuEnv = node.osEnvironments?.find(
+              (env) => env.typeId === "ubuntu"
+            );
+
+            if (ubuntuEnv) {
+              // Add the application to the Ubuntu environment
+              const appSuccess = this.app.diagram.addApplicationToNode(
+                hardwareNode.id,
+                type,
+                ubuntuEnv.id
+              );
+
+              if (appSuccess) {
+                this.app.nodeRenderer.updateNodeElement(hardwareNode.id, node);
+                this.app.selectNode(hardwareNode.id);
+                this.app.ui.showToast(
+                  `Created server with Ubuntu and ${type}`,
+                  "success"
+                );
+              }
+            }
+          }
+        } else if (category === "os") {
+          // Add the OS environment directly to the hardware
+          const osFriendlyName = OS_TYPES[type]?.name || type;
+
+          const success = this.app.diagram.addOSEnvironment(
+            hardwareNode.id,
+            osFriendlyName,
+            type,
+            null
+          );
+          if (success) {
+            const node = this.app.diagram.nodes.get(hardwareNode.id);
+            this.app.nodeRenderer.updateNodeElement(hardwareNode.id, node);
+            this.app.selectNode(hardwareNode.id);
+            this.app.ui.showToast(
+              `Created server with ${osFriendlyName}`,
+              "success"
+            );
+          }
+        }
+
         return;
       }
     }

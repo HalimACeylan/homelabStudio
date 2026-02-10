@@ -18,6 +18,7 @@ import { UIController } from "./modules/UIController.js";
 import { FileManager } from "./modules/FileManager.js";
 import { KeyboardController } from "./modules/KeyboardController.js";
 import { NodeRenderer } from "./modules/NodeRenderer.js";
+import { InternalDragDrop } from "./modules/InternalDragDrop.js";
 
 class HomelabStudio {
   constructor() {
@@ -38,6 +39,7 @@ class HomelabStudio {
     this.ui = new UIController(this);
     this.file = new FileManager(this);
     this.keyboard = new KeyboardController(this);
+    this.internalDragDrop = new InternalDragDrop(this);
 
     // Setup event listeners
     this.setupEventListeners();

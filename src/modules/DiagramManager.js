@@ -189,6 +189,67 @@ export class DiagramManager {
     return false;
   }
 
+  // Move an OS environment from one location to another
+  moveOSEnvironment(
+    sourceNodeId,
+    osEnvId,
+    targetNodeId,
+    targetParentId = null
+  ) {
+    const sourceNode = this.nodes.get(sourceNodeId);
+    const targetNode = this.nodes.get(targetNodeId);
+
+    if (!sourceNode || !targetNode) return false;
+
+    // Find and remove the OS environment from source
+    let osEnv = null;
+    const removeFromEnvList = (envs, parentId = null) => {
+      for (let i = 0; i < envs.length; i++) {
+        if (envs[i].id === osEnvId) {
+          osEnv = envs.splice(i, 1)[0];
+          return true;
+        }
+        // Check nested environments
+        if (envs[i].osEnvironments) {
+          if (removeFromEnvList(envs[i].osEnvironments, envs[i].id)) {
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+
+    // Remove from source
+    if (!removeFromEnvList(sourceNode.osEnvironments || [])) {
+      return false; // OS environment not found
+    }
+
+    // Add to target
+    if (targetParentId) {
+      // Add to a parent OS environment
+      const parentEnv = this.findOSEnvironment(
+        targetNode.osEnvironments,
+        targetParentId
+      );
+      if (parentEnv) {
+        if (!parentEnv.osEnvironments) parentEnv.osEnvironments = [];
+        parentEnv.osEnvironments.push(osEnv);
+      } else {
+        // Parent not found, add to root instead
+        if (!targetNode.osEnvironments) targetNode.osEnvironments = [];
+        targetNode.osEnvironments.push(osEnv);
+      }
+    } else {
+      // Add to root of target node
+      if (!targetNode.osEnvironments) targetNode.osEnvironments = [];
+      targetNode.osEnvironments.push(osEnv);
+    }
+
+    targetNode.expanded = true;
+    this.updateModified();
+    return true;
+  }
+
   toggleNodeExpanded(nodeId) {
     const node = this.nodes.get(nodeId);
     if (!node) return;

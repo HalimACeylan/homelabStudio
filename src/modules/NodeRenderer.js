@@ -267,7 +267,11 @@ export class NodeRenderer {
     if (!app) return "";
 
     return `
-      <div class="node-app-item" data-app="${appType}" title="${app.description}">
+      <div class="node-app-item" 
+           draggable="true" 
+           data-app="${appType}" 
+           data-drag-type="application"
+           title="${app.description}">
         <div class="node-app-icon ${app.icon}-icon"></div>
         <span class="node-app-name">${app.name}</span>
         <button class="node-item-delete" data-action="delete-app" data-app-id="${appType}">
@@ -281,8 +285,10 @@ export class NodeRenderer {
     const apps = env.applications || [];
     const subEnvs = env.osEnvironments || [];
     return `
-      <div class="os-env-group" data-os-env-id="${env.id}">
-        <div class="os-env-header">
+      <div class="os-env-group" data-os-env-id="${
+        env.id
+      }" data-drag-type="os-environment">
+        <div class="os-env-header" draggable="true">
           <div class="os-env-icon">
             <div class="${env.typeId ? env.typeId + "-icon" : "os-icon"}"></div>
           </div>
@@ -293,7 +299,9 @@ export class NodeRenderer {
             <div class="trash-icon"></div>
           </button>
         </div>
-        <div class="os-env-content">
+        <div class="os-env-content app-drop-zone" data-drop-target="os-env" data-os-env-id="${
+          env.id
+        }">
           ${
             apps.length > 0
               ? `<div class="node-apps-grid os-env-grid">
