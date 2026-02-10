@@ -741,10 +741,99 @@ export class CanvasController {
           data: { x: node.x, y: node.y },
         });
       }
+
+      // Check if node was dropped onto another node to create a group
+      this.checkAndCreateGroupOnDrop(nodeId);
     }
 
     this.isDragging = false;
     this.draggedNode = null;
+  }
+
+  checkAndCreateGroupOnDrop(draggedNodeId) {
+    const draggedNode = this.app.diagram.nodes.get(draggedNodeId);
+    if (!draggedNode) return;
+
+    // Calculate dragged node center in canvas coordinates
+    const draggedCenterX = draggedNode.x + draggedNode.width / 2;
+    const draggedCenterY = draggedNode.y + draggedNode.height / 2;
+
+    // Find if dropped onto another node using canvas coordinates
+    let targetNodeId = null;
+
+    for (const [nodeId, node] of this.app.diagram.nodes) {
+      if (nodeId === draggedNodeId) continue; // Skip self
+
+      // Check if dragged node's center is within this node's bounds
+      if (
+        draggedCenterX >= node.x &&
+        draggedCenterX <= node.x + node.width &&
+        draggedCenterY >= node.y &&
+        draggedCenterY <= node.y + node.height
+      ) {
+        targetNodeId = nodeId;
+        break;
+      }
+    }
+
+    if (!targetNodeId) return;
+
+    const targetNode = this.app.diagram.nodes.get(targetNodeId);
+    if (!targetNode) return;
+
+    // Check if nodes already belong to a group
+    const draggedNodeGroup = this.app.diagram.getNodeGroup(draggedNodeId);
+    const targetNodeGroup = this.app.diagram.getNodeGroup(targetNodeId);
+
+    if (draggedNodeGroup || targetNodeGroup) {
+      // If one or both already in a group, add to existing group
+      const groupId = draggedNodeGroup || targetNodeGroup;
+      const nodesToAdd = [];
+
+      if (!draggedNodeGroup) nodesToAdd.push(draggedNodeId);
+      if (!targetNodeGroup) nodesToAdd.push(targetNodeId);
+
+      if (nodesToAdd.length > 0) {
+        this.app.addNodesToGroup(groupId, nodesToAdd);
+      }
+    } else {
+      // Neither node is in a group - create new group
+
+      // Check if either node has Proxmox in OS environments
+      const hasProxmox =
+        this.nodeHasProxmox(draggedNode) || this.nodeHasProxmox(targetNode);
+
+      const groupName = hasProxmox ? "Proxmox Cluster" : "New Group";
+      const groupColor = hasProxmox ? "#e97000" : "#3b82f6";
+
+      // Create group with both nodes
+      const group = this.app.diagram.createGroup(groupName, groupColor);
+      this.app.addNodesToGroup(group.id, [draggedNodeId, targetNodeId]);
+
+      // Render the group
+      this.app.canvas.renderGroup(group);
+
+      this.app.ui.showToast(
+        hasProxmox ? `Created ${groupName}` : `Grouped nodes together`,
+        "success"
+      );
+    }
+  }
+
+  nodeHasProxmox(node) {
+    if (!node.osEnvironments) return false;
+
+    const checkEnvs = (envs) => {
+      for (const env of envs) {
+        // Check for Proxmox VE OS (proxmox_os)
+        if (env.typeId === "proxmox_os") return true;
+        // Also check for nested environments
+        if (env.osEnvironments && checkEnvs(env.osEnvironments)) return true;
+      }
+      return false;
+    };
+
+    return checkEnvs(node.osEnvironments);
   }
 
   // Connecting

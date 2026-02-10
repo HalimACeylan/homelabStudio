@@ -458,21 +458,32 @@ export class DiagramManager {
     return connData;
   }
 
-  createGroup(nodeIds, name = "Network Group") {
+  createGroup(name = "Network Group", color = null, nodeIds = []) {
     const id = generateId("group");
     const group = {
       id,
       name,
       nodeIds: [...nodeIds], // Copy array
       type: "network",
-      // Random nicely selected colors
-      color: ["#ff4444", "#58a6ff", "#00c853", "#ffab00", "#aa00ff", "#ff4081"][
-        Math.floor(Math.random() * 6)
-      ],
+      // Use provided color or random nicely selected color
+      color:
+        color ||
+        ["#ff4444", "#58a6ff", "#00c853", "#ffab00", "#aa00ff", "#ff4081"][
+          Math.floor(Math.random() * 6)
+        ],
     };
     this.groups.set(id, group);
     this.updateModified();
     return group;
+  }
+
+  getNodeGroup(nodeId) {
+    for (const [groupId, group] of this.groups) {
+      if (group.nodeIds.includes(nodeId)) {
+        return groupId;
+      }
+    }
+    return null;
   }
 
   updateGroup(groupId, updates) {

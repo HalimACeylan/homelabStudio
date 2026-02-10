@@ -186,12 +186,6 @@ export const APPLICATION_TYPES = {
     color: "#ef4444",
     description: "DNS-level ad blocker",
   },
-  proxmox: {
-    name: "Proxmox VE",
-    icon: "proxmox",
-    color: "#e97132",
-    description: "Virtualization platform",
-  },
   docker: {
     name: "Docker",
     icon: "docker",

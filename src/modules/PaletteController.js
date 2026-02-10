@@ -598,12 +598,39 @@ export class PaletteController {
           if (success) {
             const node = this.app.diagram.nodes.get(nodeId);
             this.app.nodeRenderer.updateNodeElement(nodeId, node);
-            const toastMsg = parentEnvId
-              ? `Created ${osFriendlyName} VM on ${
-                  parentEnvElement.querySelector(".os-env-name").textContent
-                }`
-              : `Created ${osFriendlyName} environment on ${node.properties.name}`;
-            this.app.ui.showToast(toastMsg, "success");
+
+            // If Proxmox OS was added and node is not already in a group, create Proxmox Cluster
+            if (type === "proxmox_os") {
+              const existingGroup = this.app.diagram.getNodeGroup(nodeId);
+              if (!existingGroup) {
+                const group = this.app.diagram.createGroup(
+                  "Proxmox Cluster",
+                  "#e97000",
+                  [nodeId]
+                );
+                this.app.canvas.renderGroup(group);
+                this.app.ui.showToast(
+                  `Added ${osFriendlyName} to ${node.properties.name} in Proxmox Cluster`,
+                  "success"
+                );
+              } else {
+                // Already in a group, just show normal toast
+                const toastMsg = parentEnvId
+                  ? `Created ${osFriendlyName} VM on ${
+                      parentEnvElement.querySelector(".os-env-name").textContent
+                    }`
+                  : `Created ${osFriendlyName} environment on ${node.properties.name}`;
+                this.app.ui.showToast(toastMsg, "success");
+              }
+            } else {
+              // Not Proxmox, show normal toast
+              const toastMsg = parentEnvId
+                ? `Created ${osFriendlyName} VM on ${
+                    parentEnvElement.querySelector(".os-env-name").textContent
+                  }`
+                : `Created ${osFriendlyName} environment on ${node.properties.name}`;
+              this.app.ui.showToast(toastMsg, "success");
+            }
           }
         }
 
@@ -753,10 +780,25 @@ export class PaletteController {
             const node = this.app.diagram.nodes.get(hardwareNode.id);
             this.app.nodeRenderer.updateNodeElement(hardwareNode.id, node);
             this.app.selectNode(hardwareNode.id);
-            this.app.ui.showToast(
-              `Created server with ${osFriendlyName}`,
-              "success"
-            );
+
+            // If Proxmox, create a Proxmox Cluster group automatically
+            if (type === "proxmox_os") {
+              const group = this.app.diagram.createGroup(
+                "Proxmox Cluster",
+                "#e97000",
+                [hardwareNode.id]
+              );
+              this.app.canvas.renderGroup(group);
+              this.app.ui.showToast(
+                `Created server with ${osFriendlyName} in Proxmox Cluster`,
+                "success"
+              );
+            } else {
+              this.app.ui.showToast(
+                `Created server with ${osFriendlyName}`,
+                "success"
+              );
+            }
           }
         }
 

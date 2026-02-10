@@ -300,7 +300,7 @@ class HomelabStudio {
   createGroup(nodeIds) {
     if (!nodeIds || nodeIds.length < 2) return;
 
-    const group = this.diagram.createGroup(nodeIds, "Network Group");
+    const group = this.diagram.createGroup("Network Group", null, nodeIds);
     this.canvas.renderGroup(group);
     this.ui.showToast("Network Group created", "success");
 
