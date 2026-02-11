@@ -9,6 +9,7 @@ export class FileManager {
     this.app = app;
     this.fileInput = document.getElementById("file-input");
     this.storageKey = "homelab-studio-autosave";
+    this.lastSavedModified = this.app.diagram.metadata.modified;
 
     this.setupEventListeners();
     this.loadAutosave();
@@ -17,6 +18,8 @@ export class FileManager {
 
   setupEventListeners() {
     this.fileInput.addEventListener("change", (e) => this.handleFileSelect(e));
+    document.addEventListener("dragover", (e) => this.handleDragOver(e));
+    document.addEventListener("drop", (e) => this.handleFileDrop(e));
   }
 
   save() {
@@ -28,6 +31,7 @@ export class FileManager {
 
     const json = JSON.stringify(data, null, 2);
     downloadFile(json, filename, "application/json");
+    this.markSaved();
 
     this.app.ui.showToast("Diagram saved", "success");
   }
@@ -39,12 +43,49 @@ export class FileManager {
   async handleFileSelect(e) {
     const file = e.target.files[0];
     if (!file) return;
+    this.fileInput.value = "";
+    this.loadFileWithConfirm(file);
+  }
 
+  handleDragOver(e) {
+    if (!this.isFileDrag(e)) return;
+    e.preventDefault();
+  }
+
+  handleFileDrop(e) {
+    if (!this.isFileDrag(e)) return;
+    e.preventDefault();
+
+    const file = e.dataTransfer.files[0];
+    if (!file) return;
+    this.loadFileWithConfirm(file);
+  }
+
+  isFileDrag(e) {
+    return Array.from(e.dataTransfer?.types || []).includes("Files");
+  }
+
+  loadFileWithConfirm(file) {
+    const proceed = () => this.loadFromFile(file);
+    if (!this.hasUnsavedChanges()) {
+      proceed();
+      return;
+    }
+
+    this.app.ui.showModal(
+      "Unsaved Changes",
+      "<p>Loading a file will replace your current diagram. Unsaved changes will be lost. Continue?</p>",
+      proceed
+    );
+  }
+
+  async loadFromFile(file) {
     try {
       const content = await readFile(file);
       const data = JSON.parse(content);
 
       this.app.importDiagram(data);
+      this.markSaved();
       this.app.ui.showToast(
         `Loaded: ${data.metadata?.name || "diagram"}`,
         "success"
@@ -58,9 +99,14 @@ export class FileManager {
       console.error("Failed to load file:", error);
       this.app.ui.showToast("Failed to load file", "error");
     }
+  }
 
-    // Reset file input
-    this.fileInput.value = "";
+  markSaved() {
+    this.lastSavedModified = this.app.diagram.metadata.modified;
+  }
+
+  hasUnsavedChanges() {
+    return this.app.diagram.metadata.modified !== this.lastSavedModified;
   }
 
   // Autosave functionality
