@@ -5,11 +5,9 @@ on:
     branches: [main, release]
   workflow_dispatch:
 
-# Scope writes to contents only (gh-pages push). Everything else is read-only.
 permissions:
   contents: write
 
-# Allow only one concurrent deployment; cancel older runs.
 concurrency:
   group: pages
   cancel-in-progress: true
@@ -19,30 +17,48 @@ jobs:
     name: Build & Deploy
     runs-on: ubuntu-latest
 
-    # Hard guard: only the repository owner can trigger a deploy,
-    # even if someone somehow queues this workflow.
-    if: github.actor == 'HalimACeylan'
-
     steps:
       - name: Checkout repository
         run: |
-          git clone --depth 1 \
+          set -e
+          git clone --depth 1 --branch main \
             https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git .
+          echo "✅ Checkout done"
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          set -e
+          npm ci
+          echo "✅ Dependencies installed"
 
       - name: Build
-        run: npm run build
-
-      - name: Deploy to gh-pages branch
         run: |
+          set -e
+          npm run build
+          echo "✅ Build done"
+          echo "--- dist contents ---"
+          ls -la dist/
+          ls -la dist/assets/
+
+      - name: Verify build output
+        run: |
+          set -e
+          test -f dist/index.html   || (echo "❌ Missing dist/index.html" && exit 1)
+          test -f dist/.nojekyll    || (echo "❌ Missing dist/.nojekyll" && exit 1)
+          test -d dist/assets       || (echo "❌ Missing dist/assets/" && exit 1)
+          echo "✅ Build output verified"
+
+      - name: Deploy to gh-pages
+        run: |
+          set -e
           cd dist
-          git init
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
+          git init -b gh-pages
+          git remote add origin \
+            https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
           git add -A
-          git commit -m "Deploy: ${{ github.sha }}"
-          git push --force \
-            https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git \
-            HEAD:gh-pages
+          git status
+          git commit -m "deploy: ${GITHUB_SHA::8}"
+          git push --force origin gh-pages
+          echo "✅ Deployed to gh-pages"
